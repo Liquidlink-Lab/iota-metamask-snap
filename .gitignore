@@ -1,0 +1,35 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore build artifacts
+dist/
+build/
+
+# Ignore environment variables
+.env
+
+# Ignore log files
+*.log
+
+# Ignore TypeScript cache
+*.tsbuildinfo
+
+# Ignore local environment settings
+.vscode/
+.idea/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore coverage reports
+coverage/
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore lock files
+yarn.lock
+package-lock.json
+pnpm-lock.yaml

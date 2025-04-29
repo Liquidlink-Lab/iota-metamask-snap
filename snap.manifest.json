@@ -1,0 +1,40 @@
+{
+  "version": "0.0.1",
+  "description": "A Snap for making transactions on the Sui blockchain",
+  "proposedName": "Sui",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/3MateLabs/sui-metamask-snap"
+  },
+  "source": {
+    "shasum": "YjBca0Jvy/exXBvvLskLJ6shy2m0jTm0MwP/Uwt39L0=",
+    "location": {
+      "npm": {
+        "filePath": "dist/bundle.js",
+        "iconPath": "images/icon.svg",
+        "packageName": "@3mate/sui-metamask-snap",
+        "registry": "https://registry.npmjs.org/"
+      }
+    }
+  },
+  "initialPermissions": {
+    "snap_dialog": {},
+    "endowment:rpc": {
+      "dapps": true,
+      "snaps": false
+    },
+    "endowment:network-access": {},
+    "snap_getBip32Entropy": [
+      {
+        "path": [
+          "m",
+          "44'",
+          "784'"
+        ],
+        "curve": "ed25519"
+      }
+    ],
+    "snap_manageState": {}
+  },
+  "manifestVersion": "0.1"
+}
