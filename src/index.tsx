@@ -1,10 +1,16 @@
 import { SLIP10Node } from '@metamask/key-tree';
-import { divider, heading, panel, text } from '@metamask/snaps-ui';
+import {
+  Bold,
+  Box,
+  Copyable,
+  Divider,
+  Heading,
+  Text,
+} from '@metamask/snaps-sdk/jsx';
+import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
 import { blake2b } from '@noble/hashes/blake2b';
-import type { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { SuiClient } from '@mysten/sui/client';
 import {
-  type IntentScope,
   messageWithIntent,
   toSerializedSignature,
 } from '@mysten/sui/cryptography';
@@ -195,11 +201,11 @@ function genBalanceChangesSection(balanceChanges: BalanceChange[] | undefined) {
   }
 
   return [
-    divider(),
-    text('**Balance Changes:**'),
-    ...balanceChanges.map((change) =>
-      text(`${change.amount} ${change.symbol}`),
-    ),
+    <Divider />,
+    <Text>**Balance Changes:**</Text>,
+    ...balanceChanges.map((change) => (
+      <Text>{`${change.amount} ${change.symbol}`}</Text>
+    )),
   ];
 }
 
@@ -210,11 +216,11 @@ function genBalanceChangesSection(balanceChanges: BalanceChange[] | undefined) {
  */
 function genOperationsSection(transaction: Transaction) {
   return [
-    divider(),
-    text('**Operations:**'),
-    ...genTxBlockTransactionsText(transaction).map((str, index) =>
-      text(`[${index + 1}] ${str}`),
-    ),
+    <Divider />,
+    <Text>**Operations:**</Text>,
+    ...genTxBlockTransactionsText(transaction).map((str, index) => (
+      <Text>{`[${index + 1}] ${str}`}</Text>
+    )),
   ];
 }
 
@@ -230,9 +236,6 @@ function genOperationsSection(transaction: Transaction) {
 export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
-}: {
-  origin: string;
-  request: { method: string; params: unknown };
 }) => {
   switch (request.method) {
     case 'signPersonalMessage': {
@@ -244,7 +247,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw InvalidParamsError.asSimpleError(validationError.message);
       }
       const input = deserializeSuiSignMessageInput(serialized);
-
       const keypair = await deriveKeypair();
 
       let decodedMessage = new TextDecoder().decode(input.message);
@@ -258,14 +260,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const response = await snap.request({
         method: 'snap_dialog',
         params: {
-          type: 'confirmation',
-          content: panel([
-            heading('Sign Message'),
-            text(info),
-            divider(),
-            text(decodedMessage),
-            divider(),
-          ]),
+          type: 'alert',
+          content: (
+            <Box>
+              <Text>
+                Hello, <Bold>{origin}</Bold>!
+              </Text>
+              <Text>Current gas fee estimates:</Text>
+            </Box>
+          ),
         },
       });
 
@@ -274,241 +277,253 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       }
 
       const signed = await signMessage(keypair, input.message);
-
-      const ret: SuiSignPersonalMessageOutput = signed;
-      return ret;
+      return signed;
     }
 
-    case 'signTransactionBlock': {
-      const [validationError, serialized] = validate(
-        request.params,
-        SerializedSuiSignTransactionBlockInput,
-      );
-      if (validationError !== undefined) {
-        throw InvalidParamsError.asSimpleError(validationError.message);
-      }
-      const input = deserializeSuiSignTransactionBlockInput(serialized);
+    // case 'signTransactionBlock': {
+    //   const [validationError, serialized] = validate(
+    //     request.params,
+    //     SerializedSuiSignTransactionBlockInput,
+    //   );
+    //   if (validationError !== undefined) {
+    //     throw InvalidParamsError.asSimpleError(validationError.message);
+    //   }
+    //   const input = deserializeSuiSignTransactionBlockInput(serialized);
 
-      const keypair = await deriveKeypair();
-      const sender = keypair.getPublicKey().toSuiAddress();
-      const result = await buildTransactionBlock({
-        chain: input.chain,
-        transactionBlock: input.transactionBlock as any, // Type compatibility fix
-        sender,
-      });
+    //   const keypair = await deriveKeypair();
+    //   const sender = keypair.getPublicKey().toSuiAddress();
+    //   const result = await buildTransactionBlock({
+    //     chain: input.chain,
+    //     transactionBlock: input.transactionBlock as any, // Type compatibility fix
+    //     sender,
+    //   });
 
-      const balanceChangesSection = genBalanceChangesSection(
-        result.balanceChanges,
-      );
-      const operationsSection = genOperationsSection(
-        input.transactionBlock as any,
-      ); // Type compatibility fix
+    //   const balanceChangesSection = genBalanceChangesSection(
+    //     result.balanceChanges,
+    //   );
+    //   const operationsSection = genOperationsSection(
+    //     input.transactionBlock as any,
+    //   ); // Type compatibility fix
 
-      if (result.isError) {
-        let resultText = 'Dry run failed.';
-        if (result.errorMessage) {
-          resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
-        }
+    //   if (result.isError) {
+    //     let resultText = 'Dry run failed.';
+    //     if (result.errorMessage) {
+    //       resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
+    //     }
 
-        await snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'alert',
-            content: panel([
-              heading('Transaction failed.'),
-              text(
-                `**${origin}** is requesting to **sign** a transaction block for **${input.chain}** but the **dry run failed**.`,
-              ),
-              ...balanceChangesSection,
-              ...operationsSection,
-              divider(),
-              text(resultText),
-            ]),
-          },
-        });
+    //     await snap.request({
+    //       method: 'snap_dialog',
+    //       params: {
+    //         type: 'alert',
+    //         content: (
+    //           <Divider>
+    //             <Heading>Transaction failed.</Heading>
+    //             <Text>
+    //               **{origin}** is requesting to **sign** a transaction block for
+    //               **{input.chain}** but the **dry run failed**.
+    //             </Text>
+    //             {...balanceChangesSection}
+    //             {...operationsSection}
+    //             <Divider />
+    //             <Text>{resultText}</Text>
+    //           </Divider>
+    //         ),
+    //       },
+    //     });
 
-        throw DryRunFailedError.asSimpleError(result.errorMessage);
-      }
+    //     throw DryRunFailedError.asSimpleError(result.errorMessage);
+    //   }
 
-      const response = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: panel([
-            heading('Sign a Transaction'),
-            text(
-              `**${origin}** is requesting to **sign** a transaction block for **${input.chain}**.`,
-            ),
-            text('Hint: you can manage your wallet at https://suisnap.com/'),
-            ...balanceChangesSection,
-            ...operationsSection,
-            divider(),
-            text(
-              `Estimated gas fees: **${calcTotalGasFeesDec(
-                result.dryRunRes as any, // Type compatibility fix
-              )} SUI**`,
-            ),
-          ]),
-        },
-      });
+    //   const response = await snap.request({
+    //     method: 'snap_dialog',
+    //     params: {
+    //       type: 'confirmation',
+    //       content: (
+    //         <>
+    //           <Divider />
+    //           <Heading>Sign a Transaction</Heading>
+    //           <Text>
+    //             **{origin}** is requesting to **sign** a transaction block for
+    //             **{input.chain}**.
+    //           </Text>
+    //           <Text>
+    //             Hint: you can manage your wallet at https://suisnap.com/
+    //           </Text>
+    //           {...balanceChangesSection}
+    //           {...operationsSection}
+    //           <Divider />
+    //           <Text>
+    //             Estimated gas fees: **
+    //             {calcTotalGasFeesDec(result.dryRunRes as any)} SUI**
+    //           </Text>
+    //         </>
+    //       ),
+    //     },
+    //   });
 
-      if (response !== true) {
-        throw UserRejectionError.asSimpleError();
-      }
+    //   if (response !== true) {
+    //     throw UserRejectionError.asSimpleError();
+    //   }
 
-      const signed = await keypair.signTransaction(
-        result.transactionBlockBytes ?? new Uint8Array(),
-      );
+    //   const signed = await keypair.signTransaction(
+    //     result.transactionBlockBytes ?? new Uint8Array(),
+    //   );
 
-      const res: SuiSignTransactionBlockOutput = {
-        transactionBlockBytes: signed.bytes,
-        signature: signed.signature,
-      };
+    //   const res: SuiSignTransactionBlockOutput = {
+    //     transactionBlockBytes: signed.bytes,
+    //     signature: signed.signature,
+    //   };
 
-      return res;
-    }
+    //   return res;
+    // }
 
-    case 'signAndExecuteTransactionBlock': {
-      const [validationError, serialized] = validate(
-        request.params,
-        SerializedSuiSignAndExecuteTransactionBlockInput,
-      );
-      if (validationError !== undefined) {
-        throw InvalidParamsError.asSimpleError(validationError.message);
-      }
+    // case 'signAndExecuteTransactionBlock': {
+    //   const [validationError, serialized] = validate(
+    //     request.params,
+    //     SerializedSuiSignAndExecuteTransactionBlockInput,
+    //   );
+    //   if (validationError !== undefined) {
+    //     throw InvalidParamsError.asSimpleError(validationError.message);
+    //   }
 
-      const input =
-        deserializeSuiSignAndExecuteTransactionBlockInput(serialized);
+    //   const input =
+    //     deserializeSuiSignAndExecuteTransactionBlockInput(serialized);
 
-      const url = await getFullnodeUrlForChain(input.chain);
-      const client = new SuiClient({ url });
+    //   const url = await getFullnodeUrlForChain(input.chain);
+    //   const client = new SuiClient({ url });
 
-      const keypair = await deriveKeypair();
-      const sender = keypair.getPublicKey().toSuiAddress();
-      const result = await buildTransactionBlock({
-        chain: input.chain,
-        transactionBlock: input.transactionBlock as any, // Type compatibility fix
-        sender,
-      });
+    //   const keypair = await deriveKeypair();
+    //   const sender = keypair.getPublicKey().toSuiAddress();
+    //   const result = await buildTransactionBlock({
+    //     chain: input.chain,
+    //     transactionBlock: input.transactionBlock as any, // Type compatibility fix
+    //     sender,
+    //   });
 
-      const balanceChangesSection = genBalanceChangesSection(
-        result.balanceChanges,
-      );
-      const operationsSection = genOperationsSection(
-        input.transactionBlock as any,
-      ); // Type compatibility fix
+    //   const balanceChangesSection = genBalanceChangesSection(
+    //     result.balanceChanges,
+    //   );
+    //   const operationsSection = genOperationsSection(
+    //     input.transactionBlock as any,
+    //   ); // Type compatibility fix
 
-      if (result.isError) {
-        let resultText = 'Dry run failed.';
-        if (result.errorMessage) {
-          resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
-        }
+    //   if (result.isError) {
+    //     let resultText = 'Dry run failed.';
+    //     if (result.errorMessage) {
+    //       resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
+    //     }
 
-        await snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'alert',
-            content: panel([
-              heading('Transaction failed.'),
-              text(
-                `**${origin}** is requesting to **execute** a transaction block on **${input.chain}** but the **dry run failed**.`,
-              ),
-              ...balanceChangesSection,
-              ...operationsSection,
-              divider(),
-              text(resultText),
-            ]),
-          },
-        });
+    //     await snap.request({
+    //       method: 'snap_dialog',
+    //       params: {
+    //         type: 'alert',
+    //         content: (
+    //           <>
+    //             <Heading>Transaction failed.</Heading>
+    //             <Text>
+    //               **{origin}** is requesting to **execute** a transaction block
+    //               on **{input.chain}** but the **dry run failed**.
+    //             </Text>
+    //             {balanceChangesSection}
+    //             {operationsSection}
+    //             <Divider />
+    //             <Text>{resultText}</Text>
+    //           </>
+    //         ),
+    //       },
+    //     });
 
-        throw DryRunFailedError.asSimpleError(result.errorMessage);
-      }
+    //     throw DryRunFailedError.asSimpleError(result.errorMessage);
+    //   }
 
-      const response = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: panel([
-            heading('Approve a Transaction'),
-            text(
-              `**${origin}** is requesting to **execute** a transaction block on **${input.chain}**.`,
-            ),
-            text('Hint: you can manage your wallet at https://suisnap.com/'),
-            ...balanceChangesSection,
-            ...operationsSection,
-            divider(),
-            text(
-              `Estimated gas fees: **${calcTotalGasFeesDec(
-                result.dryRunRes as any, // Type compatibility fix
-              )} SUI**`,
-            ),
-          ]),
-        },
-      });
+    //   const response = await snap.request({
+    //     method: 'snap_dialog',
+    //     params: {
+    //       type: 'confirmation',
+    //       content: (
+    //         <>
+    //           <Heading>Approve a Transaction</Heading>
+    //           <Text>
+    //             **{origin}** is requesting to **execute** a transaction block on
+    //             **{input.chain}**.
+    //           </Text>
+    //           <Text>
+    //             Hint: you can manage your wallet at https://suisnap.com/
+    //           </Text>
+    //           {balanceChangesSection}
+    //           {operationsSection}
+    //           <Divider />
+    //           <Text>
+    //             Estimated gas fees: **
+    //             {calcTotalGasFeesDec(result.dryRunRes as any)} SUI**
+    //           </Text>
+    //         </>
+    //       ),
+    //     },
+    //   });
 
-      if (response !== true) {
-        throw UserRejectionError.asSimpleError();
-      }
+    //   if (response !== true) {
+    //     throw UserRejectionError.asSimpleError();
+    //   }
 
-      // Type casting to fix compatibility issues
-      const res = await client.signAndExecuteTransaction({
-        signer: keypair,
-        transaction: input.transactionBlock as any,
-        requestType: input.requestType,
-        options: input.options,
-      });
-      // Use as any to bypass type checking for now since the SDK types have changed
-      const ret = res as any as SuiSignAndExecuteTransactionBlockOutput;
+    //   // Type casting to fix compatibility issues
+    //   const res = await client.signAndExecuteTransaction({
+    //     signer: keypair,
+    //     transaction: input.transactionBlock as any,
+    //     requestType: input.requestType,
+    //     options: input.options,
+    //   });
+    //   // Use as any to bypass type checking for now since the SDK types have changed
+    //   const ret = res as any as SuiSignAndExecuteTransactionBlockOutput;
 
-      return ret;
-    }
+    //   return ret;
+    // }
 
     case 'getAccounts': {
       const keypair = await deriveKeypair();
       return [serializedWalletAccountForPublicKey(keypair.getPublicKey())];
     }
 
-    case 'admin_getStoredState': {
-      assertAdminOrigin(origin);
+    // case 'admin_getStoredState': {
+    //   assertAdminOrigin(origin);
 
-      const ret = await getStoredState();
-      return ret;
-    }
+    //   const ret = await getStoredState();
+    //   return ret;
+    // }
 
-    case 'admin_setFullnodeUrl': {
-      assertAdminOrigin(origin);
+    // case 'admin_setFullnodeUrl': {
+    //   assertAdminOrigin(origin);
 
-      const [validationError, params] = validate(
-        request.params,
-        SerializedAdminSetFullnodeUrl,
-      );
-      if (validationError !== undefined) {
-        throw InvalidParamsError.asSimpleError(validationError.message);
-      }
+    //   const [validationError, params] = validate(
+    //     request.params,
+    //     SerializedAdminSetFullnodeUrl,
+    //   );
+    //   if (validationError !== undefined) {
+    //     throw InvalidParamsError.asSimpleError(validationError.message);
+    //   }
 
-      const state = await getStoredState();
-      switch (params.network) {
-        case 'mainnet':
-          state.mainnetUrl = params.url;
-          break;
-        case 'testnet':
-          state.testnetUrl = params.url;
-          break;
-        case 'devnet':
-          state.devnetUrl = params.url;
-          break;
-        case 'localnet':
-          state.localnetUrl = params.url;
-          break;
-        default:
-          // No default action needed
-          break;
-      }
-      await updateState(state);
+    //   const state = await getStoredState();
+    //   switch (params.network) {
+    //     case 'mainnet':
+    //       state.mainnetUrl = params.url;
+    //       break;
+    //     case 'testnet':
+    //       state.testnetUrl = params.url;
+    //       break;
+    //     case 'devnet':
+    //       state.devnetUrl = params.url;
+    //       break;
+    //     case 'localnet':
+    //       state.localnetUrl = params.url;
+    //       break;
+    //     default:
+    //       // No default action needed
+    //       break;
+    //   }
+    //   await updateState(state);
 
-      return;
-    }
-
+    //   return;
+    // }
     default:
       throw InvalidRequestMethodError.asSimpleError(request.method);
   }
