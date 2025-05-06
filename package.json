@@ -1,68 +1,74 @@
 {
-    "name": "@3mate/sui-metamask-snap",
-    "version": "0.0.1",
-    "author": "3Mate Labs",
-    "main": "./dist/bundle.js",
-    "license": "Apache-2.0",
-    "files": [
-        "dist/",
-        "images/",
-        "snap.manifest.json"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/3MateLabs/sui-metamask-snap"
-    },
-    "scripts": {
-        "build": "mm-snap build",
-        "build:clean": "pnpm clean && pnpm build",
-        "build:website": "node ./scripts/build-website.js",
-        "clean": "rimraf dist",
-        "lint": "pnpm lint:eslint && pnpm lint:misc --check",
-        "lint:eslint": "eslint . --cache --ext js,ts",
-        "lint:fix": "pnpm lint:eslint --fix && pnpm lint:misc --write",
-        "lint:misc": "prettier '**/*.json' '**/*.md' '!CHANGELOG.md' --ignore-path .gitignore",
-        "serve": "mm-snap serve",
-        "dev": "mm-snap watch"
-    },
-    "dependencies": {
-        "@metamask/key-tree": "^9.0.0",
-        "@metamask/snaps-types": "^2.0.0",
-        "@metamask/snaps-ui": "^2.0.0",
-        "@mysten/sui.js": "^0.42.0",
-        "@mysten/wallet-standard": "^0.8.0",
-        "@noble/hashes": "^1.3.2",
-        "ajv": "^8.12.0",
-        "buffer": "^6.0.3"
-    },
-    "devDependencies": {
-        "@lavamoat/allow-scripts": "^2.5.1",
-        "@metamask/auto-changelog": "^3.3.0",
-        "@metamask/eslint-config": "^12.2.0",
-        "@metamask/eslint-config-jest": "^12.1.0",
-        "@metamask/eslint-config-nodejs": "^12.1.0",
-        "@metamask/eslint-config-typescript": "^12.1.0",
-        "@metamask/snaps-cli": "^2.0.1",
-        "@typescript-eslint/eslint-plugin": "^6.7.3",
-        "@typescript-eslint/parser": "^6.7.3",
-        "eslint": "^8.50.0",
-        "eslint-config-prettier": "^9.0.0",
-        "eslint-plugin-import": "^2.28.1",
-        "eslint-plugin-jest": "^27.4.0",
-        "eslint-plugin-jsdoc": "^46.8.2",
-        "eslint-plugin-node": "^11.1.0",
-        "eslint-plugin-prettier": "^5.0.0",
-        "prettier": "^3.0.3",
-        "prettier-plugin-packagejson": "^2.4.5",
-        "rimraf": "^5.0.5",
-        "through2": "^4.0.2",
-        "typescript": "^5.2.2"
-    },
-    "engines": {
-        "node": ">=16.0.0"
-    },
-    "publishConfig": {
-        "access": "public",
-        "registry": "https://registry.npmjs.org/"
-    }
+  "name": "@3mate/sui-metamask-snap",
+  "version": "0.0.1",
+  "author": "3Mate Labs",
+  "main": "./dist/bundle.js",
+  "license": "Apache-2.0",
+  "files": [
+    "dist/",
+    "images/",
+    "snap.manifest.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/3MateLabs/sui-metamask-snap"
+  },
+  "scripts": {
+    "build": "mm-snap build",
+    "build:clean": "pnpm clean && pnpm build",
+    "build:website": "node ./scripts/build-website.js",
+    "clean": "rimraf dist",
+    "lint": "pnpm lint:eslint && pnpm lint:misc --check",
+    "lint:eslint": "eslint . --cache --ext js,ts",
+    "lint:fix": "pnpm lint:eslint --fix && pnpm lint:misc --write",
+    "lint:misc": "prettier '**/*.json' '**/*.md' '!CHANGELOG.md' --ignore-path .gitignore",
+    "serve": "mm-snap serve",
+    "dev": "mm-snap watch"
+  },
+  "dependencies": {
+    "@metamask/key-tree": "^9.0.0",
+    "@metamask/snaps-jest": "^8.14.1",
+    "@metamask/snaps-sdk": "^6.6.0",
+    "@mysten/sui": "^1.29.1",
+    "@mysten/wallet-standard": "^0.8.0",
+    "@noble/hashes": "^1.3.2",
+    "ajv": "^8.12.0",
+    "buffer": "^6.0.3"
+  },
+  "devDependencies": {
+    "@lavamoat/allow-scripts": "^2.5.1",
+    "@metamask/auto-changelog": "^3.3.0",
+    "@metamask/eslint-config": "^14.0.0",
+    "@metamask/eslint-config-browser": "^14.0.0",
+    "@metamask/eslint-config-jest": "^14.0.0",
+    "@metamask/eslint-config-nodejs": "^14.0.0",
+    "@metamask/eslint-config-typescript": "^14.0.0",
+    "@metamask/snaps-cli": "^7.1.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^4.3.4",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-import-x": "^4.11.0",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-jsdoc": "^46.10.1",
+    "eslint-plugin-n": "^17.17.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "prettier": "^3.0.3",
+    "prettier-plugin-packagejson": "^2.4.5",
+    "rimraf": "^5.0.5",
+    "through2": "^4.0.2",
+    "typescript": "^5.2.2",
+    "typescript-eslint": "^8.32.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

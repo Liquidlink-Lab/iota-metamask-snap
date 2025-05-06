@@ -7,7 +7,7 @@
     "url": "https://github.com/3MateLabs/sui-metamask-snap"
   },
   "source": {
-    "shasum": "YjBca0Jvy/exXBvvLskLJ6shy2m0jTm0MwP/Uwt39L0=",
+    "shasum": "8cu40gKquX/rI9q+RolKsY4QHnKPD0Vm1NEFJwbvPMw=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -26,15 +26,12 @@
     "endowment:network-access": {},
     "snap_getBip32Entropy": [
       {
-        "path": [
-          "m",
-          "44'",
-          "784'"
-        ],
+        "path": ["m", "44'", "784'"],
         "curve": "ed25519"
       }
     ],
     "snap_manageState": {}
   },
+  "platformVersion": "6.6.0",
   "manifestVersion": "0.1"
 }

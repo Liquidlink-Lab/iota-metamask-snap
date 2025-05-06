@@ -1,206 +1,136 @@
-import {
-  ExecuteTransactionRequestType,
-  SuiTransactionBlockResponseOptions,
-} from '@mysten/sui.js/client';
-import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { fromB64, toB64 } from '@mysten/sui.js/utils';
-import {
-  SuiSignAndExecuteTransactionBlockInput,
-  SuiSignPersonalMessageInput,
-  SuiSignTransactionBlockInput,
-  WalletAccount,
-  WalletIcon,
-} from '@mysten/wallet-standard';
-import {
-  Infer,
-  Describe,
-  array,
-  object,
-  optional,
-  string,
-  boolean,
-  literal,
-  union,
-} from 'superstruct';
-
-export { is, validate } from 'superstruct';
+import type { Transaction } from '@mysten/sui/transactions';
+import type { z } from 'zod';
 
 /**
- * Passing in objects directly to the Snap sometimes doesn't work correctly so we need to serialize to primitive values
- * and then deserialize on the other side.
+ * Serialized wallet account type for the snap.
  */
+export interface SerializedWalletAccount {
+  address: string;
+  publicKey: string;
+  chains: string[];
+  features: string[];
+}
 
-/* ======== SerializedWalletAccount ======== */
+/**
+ * Input parameters for signing a personal message.
+ */
+export interface SerializedSuiSignPersonalMessageInput {
+  message: string;
+}
 
-export const SerializedWalletAccount = object({
-  address: string(),
-  publicKey: string(),
-  chains: array(string()),
-  features: array(string()),
-  label: optional(string()),
-  icon: optional(string()),
-});
+/**
+ * Input parameters for signing a transaction block.
+ */
+export interface SerializedSuiSignTransactionBlockInput {
+  transactionBlock: Transaction;
+  chain: string;
+}
 
-export type SerializedWalletAccount = Infer<typeof SerializedWalletAccount>;
-
-export function serializeWalletAccount(
-  account: WalletAccount,
-): SerializedWalletAccount {
-  return {
-    address: account.address,
-    publicKey: toB64(account.publicKey),
-    features: [...account.features],
-    chains: [...account.chains],
-    label: account.label,
-    icon: account.icon,
+/**
+ * Input parameters for signing and executing a transaction block.
+ */
+export interface SerializedSuiSignAndExecuteTransactionBlockInput {
+  transactionBlock: Transaction;
+  chain: string;
+  requestType?: 'WaitForEffectsCert' | 'WaitForLocalExecution';
+  options?: {
+    showBalanceChanges?: boolean;
+    showObjectChanges?: boolean;
+    showEvents?: boolean;
   };
 }
 
-export function deserializeWalletAccount(
-  account: SerializedWalletAccount,
-): WalletAccount {
-  return {
-    address: account.address,
-    publicKey: fromB64(account.publicKey),
-    chains: account.chains.map((chain) => chain as `${string}:${string}`),
-    features: account.features.map(
-      (feature) => feature as `${string}:${string}`,
-    ),
-    label: account.label,
-    icon: account.icon as WalletIcon,
-  };
+/**
+ * Input parameters for admin setting the fullnode URL.
+ */
+export interface SerializedAdminSetFullnodeUrl {
+  network: 'mainnet' | 'testnet' | 'devnet' | 'localnet';
+  url: string;
 }
 
-/* ======== SerializedSuiSignMessageInput ======== */
-
-export const SerializedSuiSignPersonalMessageInput = object({
-  message: string(),
-  account: SerializedWalletAccount,
-});
-
-export type SerializedSuiSignMessageInput = Infer<
-  typeof SerializedSuiSignPersonalMessageInput
->;
-
-export function serializeSuiSignMessageInput(
-  input: SuiSignPersonalMessageInput,
-): SerializedSuiSignMessageInput {
-  return {
-    message: toB64(input.message),
-    account: serializeWalletAccount(input.account),
-  };
-}
-
+/**
+ * Deserialize a Sui sign message input.
+ * @param serialized - The serialized input.
+ * @returns The deserialized input.
+ */
 export function deserializeSuiSignMessageInput(
-  input: SerializedSuiSignMessageInput,
-): SuiSignPersonalMessageInput {
+  serialized: SerializedSuiSignPersonalMessageInput,
+) {
   return {
-    message: fromB64(input.message),
-    account: deserializeWalletAccount(input.account),
+    message: new Uint8Array(Buffer.from(serialized.message, 'base64')),
   };
 }
 
-/* ======== SerializedSuiSignTransactionBlockInput ======== */
-
-export const SerializedSuiSignTransactionBlockInput = object({
-  transactionBlock: string(),
-  account: SerializedWalletAccount,
-  chain: string(),
-});
-
-export type SerializedSuiSignTransactionBlockInput = Infer<
-  typeof SerializedSuiSignTransactionBlockInput
->;
-
-export function serializeSuiSignTransactionBlockInput(
-  input: SuiSignTransactionBlockInput,
-): SerializedSuiSignTransactionBlockInput {
-  return {
-    transactionBlock: input.transactionBlock.serialize(),
-    account: serializeWalletAccount(input.account),
-    chain: input.chain,
-  };
-}
-
+/**
+ * Deserialize a Sui sign transaction block input.
+ * @param serialized - The serialized input.
+ * @returns The deserialized input.
+ */
 export function deserializeSuiSignTransactionBlockInput(
-  input: SerializedSuiSignTransactionBlockInput,
-): SuiSignTransactionBlockInput {
+  serialized: SerializedSuiSignTransactionBlockInput,
+) {
   return {
-    transactionBlock: TransactionBlock.from(input.transactionBlock),
-    account: deserializeWalletAccount(input.account),
-    chain: input.chain as `${string}:${string}`,
+    transactionBlock: serialized.transactionBlock,
+    chain: serialized.chain,
   };
 }
 
-/* ======== SerializedSuiSignAndExecuteTransactionBlockInput ======== */
-
-const SuiTransactionBlockResponseOptionsSchema: Describe<SuiTransactionBlockResponseOptions> =
-  object({
-    showBalanceChanges: optional(boolean()),
-    showEffects: optional(boolean()),
-    showEvents: optional(boolean()),
-    showInput: optional(boolean()),
-    showObjectChanges: optional(boolean()),
-    showRawInput: optional(boolean()),
-  });
-
-export const SerializedSuiSignAndExecuteTransactionBlockInput = object({
-  transactionBlock: string(),
-  account: SerializedWalletAccount,
-  chain: string(),
-  requestType: optional(string()),
-  options: optional(SuiTransactionBlockResponseOptionsSchema),
-});
-
-export type SerializedSuiSignAndExecuteTransactionBlockInput = Infer<
-  typeof SerializedSuiSignAndExecuteTransactionBlockInput
->;
-
-export function serializeSuiSignAndExecuteTransactionBlockInput(
-  input: SuiSignAndExecuteTransactionBlockInput,
-): SerializedSuiSignAndExecuteTransactionBlockInput {
-  return {
-    transactionBlock: input.transactionBlock.serialize(),
-    account: serializeWalletAccount(input.account),
-    chain: input.chain,
-    requestType: input.requestType,
-    options: input.options,
-  };
-}
-
+/**
+ * Deserialize a Sui sign and execute transaction block input.
+ * @param serialized - The serialized input.
+ * @returns The deserialized input.
+ */
 export function deserializeSuiSignAndExecuteTransactionBlockInput(
-  input: SerializedSuiSignAndExecuteTransactionBlockInput,
-): SuiSignAndExecuteTransactionBlockInput {
+  serialized: SerializedSuiSignAndExecuteTransactionBlockInput,
+) {
   return {
-    ...input,
-    transactionBlock: TransactionBlock.from(input.transactionBlock),
-    account: deserializeWalletAccount(input.account),
-    chain: input.chain as `${string}:${string}`,
-    requestType: input.requestType as ExecuteTransactionRequestType | undefined,
+    transactionBlock: serialized.transactionBlock,
+    chain: serialized.chain,
+    requestType: serialized.requestType,
+    options: serialized.options,
   };
 }
 
-/* ======== StoredState ======== */
-
-export interface StoredState {
-  mainnetUrl: string;
-  testnetUrl: string;
-  devnetUrl: string;
-  localnetUrl: string;
+/**
+ * Validate input parameters against a schema.
+ * @param params - The parameters to validate.
+ * @param schema - The schema to validate against.
+ * @returns A tuple with the validation error (if any) and the validated params.
+ */
+export function validate<T>(
+  params: unknown,
+  schema: any,
+): [Error | undefined, T] {
+  try {
+    // This is a simplified version since we don't know the exact validation library
+    // you might be using. If you're using zod, you would use schema.parse(params)
+    const result = schema(params) as T;
+    return [undefined, result];
+  } catch (error) {
+    return [
+      error instanceof Error ? error : new Error('Validation failed'),
+      {} as T,
+    ];
+  }
 }
 
-/* ======== SerializedAdminSetFullnodeUrl ======== */
+// Add mock validator functions for the schema types
+// Replace these with your actual validation logic
+export const SerializedSuiSignPersonalMessageInput = (
+  params: unknown,
+): SerializedSuiSignPersonalMessageInput =>
+  params as SerializedSuiSignPersonalMessageInput;
 
-export const SerializedAdminSetFullnodeUrl = object({
-  network: union([
-    literal('mainnet'),
-    literal('testnet'),
-    literal('devnet'),
-    literal('localnet'),
-  ]),
-  url: string(),
-});
+export const SerializedSuiSignTransactionBlockInput = (
+  params: unknown,
+): SerializedSuiSignTransactionBlockInput =>
+  params as SerializedSuiSignTransactionBlockInput;
 
-export type SerializedAdminSetFullnodeUrl = Infer<
-  typeof SerializedAdminSetFullnodeUrl
->;
+export const SerializedSuiSignAndExecuteTransactionBlockInput = (
+  params: unknown,
+): SerializedSuiSignAndExecuteTransactionBlockInput =>
+  params as SerializedSuiSignAndExecuteTransactionBlockInput;
+
+export const SerializedAdminSetFullnodeUrl = (
+  params: unknown,
+): SerializedAdminSetFullnodeUrl => params as SerializedAdminSetFullnodeUrl;

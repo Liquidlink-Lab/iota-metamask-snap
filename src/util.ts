@@ -1,253 +1,185 @@
-import { NonAdminOrigin } from './errors';
-import { IdentifierString, SuiChain } from '@mysten/wallet-standard';
-import {
-  DryRunTransactionBlockResponse,
-  SuiClient,
-} from '@mysten/sui.js/client';
-import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { parseStructTag } from '@mysten/sui.js/utils';
+import { SuiClient } from '@mysten/sui/client';
+import type { Transaction } from '@mysten/sui/transactions';
+import type { DryRunTransactionBlockResponse } from '@mysten/sui/client';
+import Decimal from 'decimal.js';
 
-export const ALLOWED_ADMIN_ORIGIN = 'https://suisnap.com';
-
-export const DEFAULT_MAINNET_URL = 'https://fullnode.mainnet.sui.io:443';
-export const DEFAULT_TESTNET_URL = 'https://fullnode.testnet.sui.io:443';
-export const DEFAULT_DEVNET_URL = 'https://fullnode.devnet.sui.io:443';
-export const DEFAULT_LOCALNET_URL = 'http://127.0.0.1:9000';
-
-export type StoredState = {
-  mainnetUrl: string;
-  testnetUrl: string;
-  devnetUrl: string;
-  localnetUrl: string;
-};
-
-export function isAdminOrigin(origin: string) {
-  return origin === ALLOWED_ADMIN_ORIGIN;
+/**
+ * State for the Sui snaps.
+ */
+export interface SnapState {
+  mainnetUrl?: string;
+  testnetUrl?: string;
+  devnetUrl?: string;
+  localnetUrl?: string;
 }
 
-export function assertAdminOrigin(origin: string) {
-  if (!isAdminOrigin(origin)) {
-    throw NonAdminOrigin.asSimpleError();
-  }
-}
-
-export async function getStoredState(): Promise<StoredState> {
-  const state = await snap.request({
-    method: 'snap_manageState',
-    params: { operation: 'get' },
-  });
-
-  if (state === null) {
-    return {
-      mainnetUrl: DEFAULT_MAINNET_URL,
-      testnetUrl: DEFAULT_TESTNET_URL,
-      devnetUrl: DEFAULT_DEVNET_URL,
-      localnetUrl: DEFAULT_LOCALNET_URL,
-    };
-  }
-
-  return state as StoredState;
-}
-
-export async function updateState(newState: StoredState): Promise<void> {
-  await snap.request({
-    method: 'snap_manageState',
-    params: { operation: 'update', newState },
-  });
-}
-
-export async function getFullnodeUrlForChain(
-  chain: SuiChain | IdentifierString,
-) {
-  const state = await getStoredState();
-  switch (chain) {
-    case 'sui:mainnet':
-      return state.mainnetUrl;
-    case 'sui:testnet':
-      return state.testnetUrl;
-    case 'sui:devnet':
-      return state.devnetUrl;
-    case 'sui:localnet':
-      return state.localnetUrl;
-    default:
-      throw new Error(`Unsupported chain: ${chain}`);
-  }
-}
-
-export const getTokenSymbolAndNameFromTypeArg = (typeArg: string) => {
-  const tag = parseStructTag(typeArg);
-
-  const params = [];
-  for (const param of tag.typeParams) {
-    if (typeof param === 'string') {
-      params.push(param);
-    } else {
-      params.push(param.name);
-    }
-  }
-
-  let name = tag.name;
-  if (params.length > 0) {
-    name += `<${params.join(' ')}>`;
-  }
-
-  return {
-    name: name,
-    symbol: tag.name,
-  };
-};
-
+/**
+ * Balance change interface.
+ */
 export interface BalanceChange {
   symbol: string;
   amount: string;
 }
 
-export async function getBalanceChanges(
-  client: SuiClient,
-  dryRunRes: DryRunTransactionBlockResponse,
-  sender: string,
-): Promise<Array<BalanceChange>> {
-  const changes: Map<string, bigint> = new Map();
-  for (const change of dryRunRes.balanceChanges) {
-    if (
-      change.owner === 'Immutable' ||
-      !('AddressOwner' in change.owner) ||
-      change.owner.AddressOwner !== sender
-    ) {
-      continue;
-    }
-    const value = changes.get(change.coinType) ?? 0n;
-    changes.set(change.coinType, value + BigInt(change.amount));
-  }
-
-  const res = await Promise.all(
-    Array.from(changes.entries()).map(async ([coinType, amount]) => {
-      const metadata = await client.getCoinMetadata({ coinType });
-      if (metadata === null) {
-        return {
-          symbol: getTokenSymbolAndNameFromTypeArg(coinType).name,
-          amount: amount.toString(),
-        };
-      } else {
-        const positive = amount >= 0n;
-        const abs = positive ? amount : -amount;
-        const integral = abs / 10n ** BigInt(metadata.decimals);
-        const fractional = abs % 10n ** BigInt(metadata.decimals);
-
-        let value = positive ? '+' : '-';
-        value += integral.toString();
-        if (fractional > 0n) {
-          value += '.';
-          value += fractional
-            .toString()
-            .padStart(metadata.decimals, '0')
-            .replace(/0+$/, '');
-        }
-
-        return {
-          symbol: metadata.symbol,
-          amount: value,
-        };
-      }
-    }),
-  );
-
-  return res;
-}
-
-function getErrorMessage(e: unknown): string | null {
-  if (
-    typeof e === 'object' &&
-    e !== null &&
-    'message' in e &&
-    typeof e.message === 'string'
-  ) {
-    return e.message;
-  }
-  return null;
-}
-
-export interface BuildTransactionBlockInput {
-  chain: IdentifierString;
-  transactionBlock: TransactionBlock;
-  sender: string;
-}
-
+/**
+ * Build transaction block result.
+ */
 export interface BuildTransactionBlockResult {
-  transactionBlockBytes: Uint8Array | undefined;
-  balanceChanges: Array<BalanceChange> | undefined;
-  dryRunRes: DryRunTransactionBlockResponse | undefined;
   isError: boolean;
-  errorMessage: string;
+  transactionBlockBytes?: Uint8Array;
+  errorMessage?: string;
+  dryRunRes?: DryRunTransactionBlockResponse;
+  balanceChanges?: BalanceChange[];
 }
 
-export async function buildTransactionBlock(
-  input: BuildTransactionBlockInput,
-): Promise<BuildTransactionBlockResult> {
-  const url = await getFullnodeUrlForChain(input.chain);
-  const client = new SuiClient({ url });
+/**
+ * Default Sui network URLs.
+ */
+const DEFAULT_MAINNET_URL = 'https://fullnode.mainnet.sui.io:443';
+const DEFAULT_TESTNET_URL = 'https://fullnode.testnet.sui.io:443';
+const DEFAULT_DEVNET_URL = 'https://fullnode.devnet.sui.io:443';
+const DEFAULT_LOCALNET_URL = 'http://127.0.0.1:9000';
 
-  input.transactionBlock.setSender(input.sender);
-
-  let dryRunRes: DryRunTransactionBlockResponse | undefined = undefined;
-  let balanceChanges = undefined;
-  const dryRunError = { hasError: false, message: '' };
-  try {
-    dryRunRes = await client.dryRunTransactionBlock({
-      transactionBlock: await input.transactionBlock.build({ client }),
-    });
-    if (dryRunRes.effects.status.status === 'failure') {
-      dryRunError.hasError = true;
-      dryRunError.message = dryRunRes.effects.status.error || '';
-    }
-    balanceChanges = await getBalanceChanges(client, dryRunRes, input.sender);
-  } catch (e: unknown) {
-    dryRunError.hasError = true;
-    dryRunError.message = getErrorMessage(e) ?? 'Unexpected error';
+/**
+ * Assert that the request comes from an admin origin.
+ * @param origin - The origin of the request.
+ * @throws If the origin is not an admin origin.
+ */
+export function assertAdminOrigin(origin: string): void {
+  if (origin !== 'https://suisnap.com' && origin !== 'http://localhost:8000') {
+    throw new Error('Unauthorized: Admin-only method');
   }
-
-  if (!dryRunRes || !balanceChanges || dryRunError.hasError) {
-    return {
-      transactionBlockBytes: undefined,
-      balanceChanges,
-      dryRunRes,
-      isError: true,
-      errorMessage: dryRunError.message,
-    };
-  }
-
-  let transactionBlockBytes;
-  try {
-    transactionBlockBytes = await input.transactionBlock.build({
-      client,
-    });
-  } catch (e) {
-    return {
-      transactionBlockBytes: undefined,
-      balanceChanges,
-      dryRunRes,
-      isError: true,
-      errorMessage: getErrorMessage(e) ?? 'Unexpected error',
-    };
-  }
-
-  return {
-    transactionBlockBytes,
-    balanceChanges,
-    dryRunRes,
-    isError: false,
-    errorMessage: '',
-  };
 }
 
+/**
+ * Get the fullnode URL for a specific chain.
+ * @param chain - The chain to get the URL for.
+ * @returns The fullnode URL.
+ */
+export async function getFullnodeUrlForChain(chain: string): Promise<string> {
+  const state = await getStoredState();
+
+  switch (chain) {
+    case 'sui:mainnet':
+      return state.mainnetUrl ?? DEFAULT_MAINNET_URL;
+    case 'sui:testnet':
+      return state.testnetUrl ?? DEFAULT_TESTNET_URL;
+    case 'sui:devnet':
+      return state.devnetUrl ?? DEFAULT_DEVNET_URL;
+    case 'sui:localnet':
+      return state.localnetUrl ?? DEFAULT_LOCALNET_URL;
+    default:
+      throw new Error(`Unsupported chain: ${chain}`);
+  }
+}
+
+/**
+ * Get the stored state from the snap.
+ * @returns The stored state.
+ */
+export async function getStoredState(): Promise<SnapState> {
+  const state = await snap.request({
+    method: 'snap_manageState',
+    params: { operation: 'get' },
+  });
+
+  return (state as SnapState) ?? {};
+}
+
+/**
+ * Update the stored state in the snap.
+ * @param state - The new state to store.
+ */
+export async function updateState(state: SnapState): Promise<void> {
+  await snap.request({
+    method: 'snap_manageState',
+    params: { operation: 'update', newState: state },
+  });
+}
+
+/**
+ * Calculate the total gas fees in decimal format.
+ * @param dryRunRes - The dry run transaction block response.
+ * @returns The total gas fees in decimal format.
+ */
 export function calcTotalGasFeesDec(
   dryRunRes: DryRunTransactionBlockResponse,
-): number {
-  const gasUsed = dryRunRes.effects.gasUsed;
-  const totalGasFeesInt =
-    BigInt(gasUsed.computationCost) +
-    BigInt(gasUsed.storageCost) -
-    BigInt(gasUsed.storageRebate);
+): string {
+  if (!dryRunRes?.effects?.gasUsed) {
+    return '0';
+  }
 
-  return Number(totalGasFeesInt.toString()) / 1e9;
+  const computationCost = new Decimal(
+    dryRunRes.effects.gasUsed.computationCost,
+  );
+  const storageCost = new Decimal(dryRunRes.effects.gasUsed.storageCost);
+  const storageRebate = new Decimal(dryRunRes.effects.gasUsed.storageRebate);
+
+  const totalGasFee = computationCost.plus(storageCost).minus(storageRebate);
+  return totalGasFee.div(1e9).toString();
+}
+
+/**
+ * Build a transaction block.
+ * @param params - The parameters for building the transaction block.
+ * @returns The result of building the transaction block.
+ */
+export async function buildTransactionBlock(params: {
+  chain: string;
+  transactionBlock: Transaction;
+  sender: string;
+}): Promise<BuildTransactionBlockResult> {
+  const { chain, transactionBlock, sender } = params;
+
+  try {
+    const url = await getFullnodeUrlForChain(chain);
+    const client = new SuiClient({ url });
+
+    // Set the sender on the transaction if not already set
+    if (!transactionBlock.getData().sender) {
+      transactionBlock.setSender(sender);
+    }
+
+    // Build the transaction block bytes
+    const transactionBlockBytes = await transactionBlock.build({ client });
+
+    // Dry run the transaction block
+    const dryRunRes = await client.dryRunTransactionBlock({
+      transactionBlock: transactionBlockBytes,
+    });
+
+    // Handle error in dry run
+    if (dryRunRes.effects?.status?.status !== 'success') {
+      const errorMessage = dryRunRes.effects?.status?.error || 'Unknown error';
+      return {
+        isError: true,
+        transactionBlockBytes,
+        errorMessage,
+        dryRunRes,
+      };
+    }
+
+    // Extract balance changes
+    let balanceChanges: BalanceChange[] = [];
+    if (dryRunRes.balanceChanges) {
+      balanceChanges = dryRunRes.balanceChanges
+        .filter((change) => change.owner === `0x${sender}`)
+        .map((change) => ({
+          symbol: change.coinType.split('::').pop() || 'SUI',
+          amount: new Decimal(change.amount).div(1e9).toString(),
+        }));
+    }
+
+    return {
+      isError: false,
+      transactionBlockBytes,
+      dryRunRes,
+      balanceChanges,
+    };
+  } catch (error) {
+    return {
+      isError: true,
+      errorMessage: (error as Error).message,
+    };
+  }
 }
