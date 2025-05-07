@@ -55,7 +55,7 @@ async function deriveKeypair() {
   const res = await snap.request({
     method: 'snap_getBip32Entropy',
     params: {
-      path: ['m', "44'", "784'"],
+      path: ['m', "44'", "4218'"],
       curve: 'ed25519',
     },
   });

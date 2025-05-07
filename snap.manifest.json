@@ -1,13 +1,13 @@
 {
   "version": "0.0.1",
-  "description": "A Snap for making transactions on the Sui blockchain",
-  "proposedName": "Sui",
+  "description": "A Snap for making transactions on the Iota blockchain",
+  "proposedName": "Iota",
   "repository": {
     "type": "git",
     "url": "https://github.com/3MateLabs/sui-metamask-snap"
   },
   "source": {
-    "shasum": "y+S6srFmAhV+rDZNrzYtNzmUvkjWP4VdtrphOxcUrEM=",
+    "shasum": "OWUg3eU5SxEb/XcGuluDWYp6ZJjKieCmptOxwEKw5mo=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -26,7 +26,7 @@
     "endowment:network-access": {},
     "snap_getBip32Entropy": [
       {
-        "path": ["m", "44'", "784'"],
+        "path": ["m", "44'", "4218'"],
         "curve": "ed25519"
       }
     ],
