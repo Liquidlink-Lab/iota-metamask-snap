@@ -7,12 +7,12 @@
     "url": "https://github.com/3MateLabs/iota-metamask-snap"
   },
   "source": {
-    "shasum": "OWUg3eU5SxEb/XcGuluDWYp6ZJjKieCmptOxwEKw5mo=",
+    "shasum": "Dm4Js6UJF/czzHgSB7nCFT45z+Yhug4HrBTzadtEeIg=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "@3mate/iota-metamask-snap",
+        "packageName": "iota-metamask-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }

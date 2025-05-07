@@ -1,5 +1,5 @@
 {
-  "name": "@3mate/sui-metamask-snap",
+  "name": "iota-metamask-snap",
   "version": "0.0.1",
   "author": "3Mate Labs",
   "main": "./dist/bundle.js",
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/3MateLabs/sui-metamask-snap"
+    "url": "https://github.com/3MateLabs/iota-metamask-snap"
   },
   "scripts": {
     "build": "mm-snap build",
@@ -33,7 +33,8 @@
     "@metamask/snaps-sdk": "^6.6.0",
     "@noble/hashes": "^1.3.2",
     "ajv": "^8.12.0",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "decimal.js": "^10.5.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^2.5.1",

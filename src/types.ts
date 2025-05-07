@@ -1,4 +1,4 @@
-import type { Transaction } from '@mysten/sui/transactions';
+import type { Transaction } from '@iota/iota-sdk/transactions';
 
 /**
  * Serialized wallet account type for the snap.

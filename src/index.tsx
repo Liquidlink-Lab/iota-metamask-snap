@@ -288,245 +288,244 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       return [serializedWalletAccountForPublicKey(keypair.getPublicKey())];
     }
 
-    // case 'signTransactionBlock': {
-    //   const [validationError, serialized] = validate(
-    //     request.params,
-    //     SerializedIotaSignTransactionBlockInput,
-    //   );
-    //   if (validationError !== undefined) {
-    //     throw InvalidParamsError.asSimpleError(validationError.message);
-    //   }
-    //   const input = deserializeIotaSignTransactionBlockInput(serialized);
+    case 'signTransactionBlock': {
+      const [validationError, serialized] = validate(
+        request.params,
+        SerializedIotaSignTransactionBlockInput,
+      );
+      if (validationError !== undefined) {
+        throw InvalidParamsError.asSimpleError(validationError.message);
+      }
+      const input = deserializeIotaSignTransactionBlockInput(serialized);
 
-    //   const keypair = await deriveKeypair();
-    //   const sender = keypair.getPublicKey().toSuiAddress();
-    //   const result = await buildIotaTransactionBlock({
-    //     chain: input.chain,
-    //     transactionBlock: input.transactionBlock as any, // Type compatibility fix
-    //     sender,
-    //   });
+      const keypair = await deriveKeypair();
+      const sender = keypair.getPublicKey().toIotaAddress();
+      const result = await buildIotaTransactionBlock({
+        chain: input.chain,
+        transactionBlock: input.transactionBlock as any, // Type compatibility fix
+        sender,
+      });
 
-    //   const balanceChangesSection = genBalanceChangesSection(
-    //     result.balanceChanges,
-    //   );
-    //   const operationsSection = genOperationsSection(
-    //     input.transactionBlock as any,
-    //   ); // Type compatibility fix
+      const balanceChangesSection = genBalanceChangesSection(
+        result.balanceChanges,
+      );
+      const operationsSection = genOperationsSection(
+        input.transactionBlock as any,
+      ); // Type compatibility fix
 
-    //   if (result.isError) {
-    //     let resultText = 'Dry run failed.';
-    //     if (result.errorMessage) {
-    //       resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
-    //     }
+      if (result.isError) {
+        let resultText = 'Dry run failed.';
+        if (result.errorMessage) {
+          resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
+        }
 
-    //     await snap.request({
-    //       method: 'snap_dialog',
-    //       params: {
-    //         type: 'alert',
-    //         content: (
-    //           <Divider>
-    //             <Heading>Transaction failed.</Heading>
-    //             <Text>
-    //               **{origin}** is requesting to **sign** a transaction block for
-    //               **{input.chain}** but the **dry run failed**.
-    //             </Text>
-    //             {...balanceChangesSection}
-    //             {...operationsSection}
-    //             <Divider />
-    //             <Text>{resultText}</Text>
-    //           </Divider>
-    //         ),
-    //       },
-    //     });
+        await snap.request({
+          method: 'snap_dialog',
+          params: {
+            type: 'alert',
+            content: (
+              <>
+                <Heading>Transaction failed.</Heading>
+                <Text>
+                  **{origin}** is requesting to **sign** a transaction block for
+                  **{input.chain}** but the **dry run failed**.
+                </Text>
+                {balanceChangesSection}
+                {operationsSection}
+                <Divider />
+                <Text>{resultText}</Text>
+              </>
+            ),
+          },
+        });
 
-    //     throw DryRunFailedError.asSimpleError(result.errorMessage);
-    //   }
+        throw DryRunFailedError.asSimpleError(result.errorMessage);
+      }
 
-    //   const response = await snap.request({
-    //     method: 'snap_dialog',
-    //     params: {
-    //       type: 'confirmation',
-    //       content: (
-    //         <>
-    //           <Divider />
-    //           <Heading>Sign a Transaction</Heading>
-    //           <Text>
-    //             **{origin}** is requesting to **sign** a transaction block for
-    //             **{input.chain}**.
-    //           </Text>
-    //           <Text>
-    //             Hint: you can manage your wallet at https://suisnap.com/
-    //           </Text>
-    //           {...balanceChangesSection}
-    //           {...operationsSection}
-    //           <Divider />
-    //           <Text>
-    //             Estimated gas fees: **
-    //             {calcTotalIotaGasFeesDec(result.dryRunRes as any)} SUI**
-    //           </Text>
-    //         </>
-    //       ),
-    //     },
-    //   });
+      const response = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: (
+            <>
+              <Heading>Sign a Transaction</Heading>
+              <Text>
+                **{origin}** is requesting to **sign** a transaction block for
+                **{input.chain}**.
+              </Text>
+              <Text>
+                Hint: you can manage your wallet at https://iotasnap.com/
+              </Text>
+              {balanceChangesSection}
+              {operationsSection}
+              <Divider />
+              <Text>
+                Estimated gas fees: **
+                {calcTotalIotaGasFeesDec(result.dryRunRes as any)} IOTA**
+              </Text>
+            </>
+          ),
+        },
+      });
 
-    //   if (response !== true) {
-    //     throw UserRejectionError.asSimpleError();
-    //   }
+      if (response !== true) {
+        throw UserRejectionError.asSimpleError();
+      }
 
-    //   const signed = await keypair.signTransaction(
-    //     result.transactionBlockBytes ?? new Uint8Array(),
-    //   );
+      const signed = await keypair.signTransaction(
+        result.transactionBlockBytes ?? new Uint8Array(),
+      );
 
-    //   const res: IotaSignTransactionBlockOutput = {
-    //     transactionBlockBytes: signed.bytes,
-    //     signature: signed.signature,
-    //   };
+      const res: IotaSignTransactionOutput = {
+        bytes: signed.bytes,
+        signature: signed.signature,
+      };
 
-    //   return res;
-    // }
+      return res;
+    }
 
-    // case 'signAndExecuteTransactionBlock': {
-    //   const [validationError, serialized] = validate(
-    //     request.params,
-    //     SerializedIotaSignAndExecuteTransactionBlockInput,
-    //   );
-    //   if (validationError !== undefined) {
-    //     throw InvalidParamsError.asSimpleError(validationError.message);
-    //   }
+    case 'signAndExecuteTransactionBlock': {
+      const [validationError, serialized] = validate(
+        request.params,
+        SerializedIotaSignAndExecuteTransactionBlockInput,
+      );
+      if (validationError !== undefined) {
+        throw InvalidParamsError.asSimpleError(validationError.message);
+      }
 
-    //   const input =
-    //     deserializeIotaSignAndExecuteTransactionBlockInput(serialized);
+      const input =
+        deserializeIotaSignAndExecuteTransactionBlockInput(serialized);
 
-    //   const url = await getIotaFullnodeUrlForChain(input.chain);
-    //   const client = new IotaClient({ url });
+      const url = await getIotaFullnodeUrlForChain(input.chain);
+      const client = new IotaClient({ url });
 
-    //   const keypair = await deriveKeypair();
-    //   const sender = keypair.getPublicKey().toSuiAddress();
-    //   const result = await buildIotaTransactionBlock({
-    //     chain: input.chain,
-    //     transactionBlock: input.transactionBlock as any, // Type compatibility fix
-    //     sender,
-    //   });
+      const keypair = await deriveKeypair();
+      const sender = keypair.getPublicKey().toIotaAddress();
+      const result = await buildIotaTransactionBlock({
+        chain: input.chain,
+        transactionBlock: input.transactionBlock as any, // Type compatibility fix
+        sender,
+      });
 
-    //   const balanceChangesSection = genBalanceChangesSection(
-    //     result.balanceChanges,
-    //   );
-    //   const operationsSection = genOperationsSection(
-    //     input.transactionBlock as any,
-    //   ); // Type compatibility fix
+      const balanceChangesSection = genBalanceChangesSection(
+        result.balanceChanges,
+      );
+      const operationsSection = genOperationsSection(
+        input.transactionBlock as any,
+      ); // Type compatibility fix
 
-    //   if (result.isError) {
-    //     let resultText = 'Dry run failed.';
-    //     if (result.errorMessage) {
-    //       resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
-    //     }
+      if (result.isError) {
+        let resultText = 'Dry run failed.';
+        if (result.errorMessage) {
+          resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
+        }
 
-    //     await snap.request({
-    //       method: 'snap_dialog',
-    //       params: {
-    //         type: 'alert',
-    //         content: (
-    //           <>
-    //             <Heading>Transaction failed.</Heading>
-    //             <Text>
-    //               **{origin}** is requesting to **execute** a transaction block
-    //               on **{input.chain}** but the **dry run failed**.
-    //             </Text>
-    //             {balanceChangesSection}
-    //             {operationsSection}
-    //             <Divider />
-    //             <Text>{resultText}</Text>
-    //           </>
-    //         ),
-    //       },
-    //     });
+        await snap.request({
+          method: 'snap_dialog',
+          params: {
+            type: 'alert',
+            content: (
+              <>
+                <Heading>Transaction failed.</Heading>
+                <Text>
+                  **{origin}** is requesting to **execute** a transaction block
+                  on **{input.chain}** but the **dry run failed**.
+                </Text>
+                {balanceChangesSection}
+                {operationsSection}
+                <Divider />
+                <Text>{resultText}</Text>
+              </>
+            ),
+          },
+        });
 
-    //     throw DryRunFailedError.asSimpleError(result.errorMessage);
-    //   }
+        throw DryRunFailedError.asSimpleError(result.errorMessage);
+      }
 
-    //   const response = await snap.request({
-    //     method: 'snap_dialog',
-    //     params: {
-    //       type: 'confirmation',
-    //       content: (
-    //         <>
-    //           <Heading>Approve a Transaction</Heading>
-    //           <Text>
-    //             **{origin}** is requesting to **execute** a transaction block on
-    //             **{input.chain}**.
-    //           </Text>
-    //           <Text>
-    //             Hint: you can manage your wallet at https://suisnap.com/
-    //           </Text>
-    //           {balanceChangesSection}
-    //           {operationsSection}
-    //           <Divider />
-    //           <Text>
-    //             Estimated gas fees: **
-    //             {calcTotalIotaGasFeesDec(result.dryRunRes as any)} SUI**
-    //           </Text>
-    //         </>
-    //       ),
-    //     },
-    //   });
+      const response = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: (
+            <>
+              <Heading>Approve a Transaction</Heading>
+              <Text>
+                **{origin}** is requesting to **execute** a transaction block on
+                **{input.chain}**.
+              </Text>
+              <Text>
+                Hint: you can manage your wallet at https://iotasnap.com/
+              </Text>
+              {balanceChangesSection}
+              {operationsSection}
+              <Divider />
+              <Text>
+                Estimated gas fees: **
+                {calcTotalIotaGasFeesDec(result.dryRunRes as any)} IOTA**
+              </Text>
+            </>
+          ),
+        },
+      });
 
-    //   if (response !== true) {
-    //     throw UserRejectionError.asSimpleError();
-    //   }
+      if (response !== true) {
+        throw UserRejectionError.asSimpleError();
+      }
 
-    //   // Type casting to fix compatibility issues
-    //   const res = await client.signAndExecuteTransaction({
-    //     signer: keypair,
-    //     transaction: input.transactionBlock as any,
-    //     requestType: input.requestType,
-    //     options: input.options,
-    //   });
-    //   // Use as any to bypass type checking for now since the SDK types have changed
-    //   const ret = res as any as IotaSignAndExecuteTransactionBlockOutput;
+      // Type casting to fix compatibility issues
+      const res = await client.signAndExecuteTransaction({
+        signer: keypair,
+        transaction: input.transactionBlock as any,
+        requestType: input.requestType,
+        options: input.options,
+      });
+      // Use as any to bypass type checking for now since the SDK types have changed
+      const ret = res as any as IotaSignAndExecuteTransactionOutput;
 
-    //   return ret;
-    // }
+      return ret;
+    }
 
-    // case 'admin_getStoredState': {
-    //   assertAdminOrigin(origin);
+    case 'admin_getStoredState': {
+      assertAdminOrigin(origin);
 
-    //   const ret = await getIotaStoredState();
-    //   return ret;
-    // }
+      const ret = await getIotaStoredState();
+      return ret;
+    }
 
-    // case 'admin_setFullnodeUrl': {
-    //   assertAdminOrigin(origin);
+    case 'admin_setFullnodeUrl': {
+      assertAdminOrigin(origin);
 
-    //   const [validationError, params] = validate(
-    //     request.params,
-    //     SerializedAdminSetFullnodeUrl,
-    //   );
-    //   if (validationError !== undefined) {
-    //     throw InvalidParamsError.asSimpleError(validationError.message);
-    //   }
+      const [validationError, params] = validate(
+        request.params,
+        SerializedAdminSetFullnodeUrl,
+      );
+      if (validationError !== undefined) {
+        throw InvalidParamsError.asSimpleError(validationError.message);
+      }
 
-    //   const state = await getIotaStoredState();
-    //   switch (params.network) {
-    //     case 'mainnet':
-    //       state.mainnetUrl = params.url;
-    //       break;
-    //     case 'testnet':
-    //       state.testnetUrl = params.url;
-    //       break;
-    //     case 'devnet':
-    //       state.devnetUrl = params.url;
-    //       break;
-    //     case 'localnet':
-    //       state.localnetUrl = params.url;
-    //       break;
-    //     default:
-    //       // No default action needed
-    //       break;
-    //   }
-    //   await updateIotaState(state);
+      const state = await getIotaStoredState();
+      switch (params.network) {
+        case 'mainnet':
+          state.mainnetUrl = params.url;
+          break;
+        case 'testnet':
+          state.testnetUrl = params.url;
+          break;
+        case 'devnet':
+          state.devnetUrl = params.url;
+          break;
+        case 'localnet':
+          state.localnetUrl = params.url;
+          break;
+        default:
+          // No default action needed
+          break;
+      }
+      await updateIotaState(state);
 
-    //   return;
-    // }
+      return;
+    }
 
     default:
       throw InvalidRequestMethodError.asSimpleError(request.method);

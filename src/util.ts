@@ -1,10 +1,10 @@
-import { SuiClient } from '@mysten/sui/client';
-import type { Transaction } from '@mysten/sui/transactions';
-import type { DryRunTransactionBlockResponse } from '@mysten/sui/client';
+import { IotaClient } from '@iota/iota-sdk/client';
+import type { Transaction } from '@iota/iota-sdk/transactions';
+import type { DryRunTransactionBlockResponse } from '@iota/iota-sdk/client';
 import Decimal from 'decimal.js';
 
 /**
- * State for the Sui snaps.
+ * State for the Iota snaps.
  */
 export interface SnapState {
   mainnetUrl?: string;
@@ -33,12 +33,12 @@ export interface BuildTransactionBlockResult {
 }
 
 /**
- * Default Sui network URLs.
+ * Default IOTA network URLs.
  */
-const DEFAULT_MAINNET_URL = 'https://fullnode.mainnet.sui.io:443';
-const DEFAULT_TESTNET_URL = 'https://fullnode.testnet.sui.io:443';
-const DEFAULT_DEVNET_URL = 'https://fullnode.devnet.sui.io:443';
-const DEFAULT_LOCALNET_URL = 'http://127.0.0.1:9000';
+const DEFAULT_MAINNET_URL = 'https://api.shimmer.network';
+const DEFAULT_TESTNET_URL = 'https://api.testnet.shimmer.network';
+const DEFAULT_DEVNET_URL = 'https://api.testnet.shimmer.network';
+const DEFAULT_LOCALNET_URL = 'http://127.0.0.1:14265';
 
 /**
  * Assert that the request comes from an admin origin.
@@ -46,7 +46,7 @@ const DEFAULT_LOCALNET_URL = 'http://127.0.0.1:9000';
  * @throws If the origin is not an admin origin.
  */
 export function assertAdminOrigin(origin: string): void {
-  if (origin !== 'https://suisnap.com' && origin !== 'http://localhost:8000') {
+  if (origin !== 'https://iotasnap.com' && origin !== 'http://localhost:8000') {
     throw new Error('Unauthorized: Admin-only method');
   }
 }
@@ -60,13 +60,13 @@ export async function getFullnodeUrlForChain(chain: string): Promise<string> {
   const state = await getStoredState();
 
   switch (chain) {
-    case 'sui:mainnet':
+    case 'iota:mainnet':
       return state.mainnetUrl ?? DEFAULT_MAINNET_URL;
-    case 'sui:testnet':
+    case 'iota:testnet':
       return state.testnetUrl ?? DEFAULT_TESTNET_URL;
-    case 'sui:devnet':
+    case 'iota:devnet':
       return state.devnetUrl ?? DEFAULT_DEVNET_URL;
-    case 'sui:localnet':
+    case 'iota:localnet':
       return state.localnetUrl ?? DEFAULT_LOCALNET_URL;
     default:
       throw new Error(`Unsupported chain: ${chain}`);
@@ -82,7 +82,7 @@ export async function getStoredState(): Promise<SnapState> {
     method: 'snap_manageState',
     params: { operation: 'get' },
   });
-
+ 
   return (state as SnapState) ?? {};
 }
 
@@ -93,7 +93,7 @@ export async function getStoredState(): Promise<SnapState> {
 export async function updateState(state: SnapState): Promise<void> {
   await snap.request({
     method: 'snap_manageState',
-    params: { operation: 'update', newState: state },
+    params: { operation: 'update', newState: state as Record<string, any> },
   });
 }
 
@@ -133,7 +133,7 @@ export async function buildTransactionBlock(params: {
 
   try {
     const url = await getFullnodeUrlForChain(chain);
-    const client = new SuiClient({ url });
+    const client = new IotaClient({ url });
 
     // Set the sender on the transaction if not already set
     if (!transactionBlock.getData().sender) {
@@ -165,7 +165,7 @@ export async function buildTransactionBlock(params: {
       balanceChanges = dryRunRes.balanceChanges
         .filter((change) => change.owner === `0x${sender}`)
         .map((change) => ({
-          symbol: change.coinType.split('::').pop() || 'SUI',
+          symbol: change.coinType.split('::').pop() || 'IOTA',
           amount: new Decimal(change.amount).div(1e9).toString(),
         }));
     }
