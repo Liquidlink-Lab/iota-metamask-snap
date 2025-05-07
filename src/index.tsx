@@ -2,7 +2,7 @@ import { SLIP10Node } from '@metamask/key-tree';
 import { Divider, Heading, Text } from '@metamask/snaps-sdk/jsx';
 import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
 import { blake2b } from '@noble/hashes/blake2b';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiClient as IotaClient } from '@mysten/sui/client';
 import {
   messageWithIntent,
   toSerializedSignature,
@@ -12,9 +12,9 @@ import type { Keypair, SignatureWithBytes } from '@mysten/sui/cryptography';
 import type { Transaction } from '@mysten/sui/transactions';
 import { toB64 } from '@mysten/sui/utils';
 import type {
-  SuiSignAndExecuteTransactionBlockOutput,
-  SuiSignPersonalMessageOutput,
-  SuiSignTransactionBlockOutput,
+  SuiSignAndExecuteTransactionBlockOutput as IotaSignAndExecuteTransactionBlockOutput,
+  SuiSignPersonalMessageOutput as IotaSignPersonalMessageOutput,
+  SuiSignTransactionBlockOutput as IotaSignTransactionBlockOutput,
 } from '@mysten/wallet-standard';
 
 import {
@@ -22,27 +22,29 @@ import {
   InvalidParamsError,
   InvalidRequestMethodError,
   UserRejectionError,
-} from './errors.js';
+} from './errors';
 import {
-  SerializedSuiSignAndExecuteTransactionBlockInput,
-  SerializedSuiSignPersonalMessageInput,
-  SerializedSuiSignTransactionBlockInput,
+  SerializedIotaSignAndExecuteTransactionBlockInput,
+  SerializedIotaSignPersonalMessageInput,
+  SerializedIotaSignTransactionBlockInput,
   SerializedAdminSetFullnodeUrl,
-  deserializeSuiSignAndExecuteTransactionBlockInput,
-  deserializeSuiSignMessageInput,
-  deserializeSuiSignTransactionBlockInput,
+  deserializeIotaSignAndExecuteTransactionBlockInput,
+  deserializeIotaSignMessageInput,
+  deserializeIotaSignTransactionBlockInput,
   validate,
-} from './types.js';
-import type { SerializedWalletAccount } from './types.js';
+} from './types';
+
+import type { SerializedIotaWalletAccount } from './types';
 import {
   assertAdminOrigin,
-  buildTransactionBlock,
-  calcTotalGasFeesDec,
-  getFullnodeUrlForChain,
-  getStoredState,
-  updateState,
-} from './util.js';
-import type { BalanceChange } from './util.js';
+  buildTransactionBlock as buildIotaTransactionBlock,
+  calcTotalGasFeesDec as calcTotalIotaGasFeesDec,
+  getFullnodeUrlForChain as getIotaFullnodeUrlForChain,
+  getStoredState as getIotaStoredState,
+  updateState as updateIotaState,
+} from './util';
+
+import type { BalanceChange as IotaBalanceChange } from './util';
 
 /**
  * Derive the Ed25519 keypair from user's MetaMask seed phrase.
@@ -74,7 +76,7 @@ async function deriveKeypair() {
  */
 function serializedWalletAccountForPublicKey(
   publicKey: Ed25519PublicKey,
-): SerializedWalletAccount {
+): SerializedIotaWalletAccount {
   return {
     address: publicKey.toSuiAddress(),
     publicKey: publicKey.toBase64(),
@@ -188,7 +190,9 @@ function genTxBlockTransactionsText(txb: Transaction): string[] {
  * @param balanceChanges - Array of balance changes.
  * @returns UI elements for the balance changes section.
  */
-function genBalanceChangesSection(balanceChanges: BalanceChange[] | undefined) {
+function genBalanceChangesSection(
+  balanceChanges: IotaBalanceChange[] | undefined,
+) {
   if (!balanceChanges || balanceChanges.length === 0) {
     return [];
   }
@@ -234,12 +238,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case 'signPersonalMessage': {
       const [validationError, serialized] = validate(
         request.params,
-        SerializedSuiSignPersonalMessageInput,
+        SerializedIotaSignPersonalMessageInput,
       );
       if (validationError !== undefined) {
         throw InvalidParamsError.asSimpleError(validationError.message);
       }
-      const input = deserializeSuiSignMessageInput(serialized);
+      const input = deserializeIotaSignMessageInput(serialized);
 
       const keypair = await deriveKeypair();
 
@@ -273,23 +277,23 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       const signed = await signMessage(keypair, input.message);
 
-      const ret: SuiSignPersonalMessageOutput = signed;
+      const ret: IotaSignPersonalMessageOutput = signed;
       return ret;
     }
 
     // case 'signTransactionBlock': {
     //   const [validationError, serialized] = validate(
     //     request.params,
-    //     SerializedSuiSignTransactionBlockInput,
+    //     SerializedIotaSignTransactionBlockInput,
     //   );
     //   if (validationError !== undefined) {
     //     throw InvalidParamsError.asSimpleError(validationError.message);
     //   }
-    //   const input = deserializeSuiSignTransactionBlockInput(serialized);
+    //   const input = deserializeIotaSignTransactionBlockInput(serialized);
 
     //   const keypair = await deriveKeypair();
     //   const sender = keypair.getPublicKey().toSuiAddress();
-    //   const result = await buildTransactionBlock({
+    //   const result = await buildIotaTransactionBlock({
     //     chain: input.chain,
     //     transactionBlock: input.transactionBlock as any, // Type compatibility fix
     //     sender,
@@ -351,7 +355,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //           <Divider />
     //           <Text>
     //             Estimated gas fees: **
-    //             {calcTotalGasFeesDec(result.dryRunRes as any)} SUI**
+    //             {calcTotalIotaGasFeesDec(result.dryRunRes as any)} SUI**
     //           </Text>
     //         </>
     //       ),
@@ -366,7 +370,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //     result.transactionBlockBytes ?? new Uint8Array(),
     //   );
 
-    //   const res: SuiSignTransactionBlockOutput = {
+    //   const res: IotaSignTransactionBlockOutput = {
     //     transactionBlockBytes: signed.bytes,
     //     signature: signed.signature,
     //   };
@@ -377,21 +381,21 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     // case 'signAndExecuteTransactionBlock': {
     //   const [validationError, serialized] = validate(
     //     request.params,
-    //     SerializedSuiSignAndExecuteTransactionBlockInput,
+    //     SerializedIotaSignAndExecuteTransactionBlockInput,
     //   );
     //   if (validationError !== undefined) {
     //     throw InvalidParamsError.asSimpleError(validationError.message);
     //   }
 
     //   const input =
-    //     deserializeSuiSignAndExecuteTransactionBlockInput(serialized);
+    //     deserializeIotaSignAndExecuteTransactionBlockInput(serialized);
 
-    //   const url = await getFullnodeUrlForChain(input.chain);
-    //   const client = new SuiClient({ url });
+    //   const url = await getIotaFullnodeUrlForChain(input.chain);
+    //   const client = new IotaClient({ url });
 
     //   const keypair = await deriveKeypair();
     //   const sender = keypair.getPublicKey().toSuiAddress();
-    //   const result = await buildTransactionBlock({
+    //   const result = await buildIotaTransactionBlock({
     //     chain: input.chain,
     //     transactionBlock: input.transactionBlock as any, // Type compatibility fix
     //     sender,
@@ -452,7 +456,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //           <Divider />
     //           <Text>
     //             Estimated gas fees: **
-    //             {calcTotalGasFeesDec(result.dryRunRes as any)} SUI**
+    //             {calcTotalIotaGasFeesDec(result.dryRunRes as any)} SUI**
     //           </Text>
     //         </>
     //       ),
@@ -471,7 +475,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //     options: input.options,
     //   });
     //   // Use as any to bypass type checking for now since the SDK types have changed
-    //   const ret = res as any as SuiSignAndExecuteTransactionBlockOutput;
+    //   const ret = res as any as IotaSignAndExecuteTransactionBlockOutput;
 
     //   return ret;
     // }
@@ -484,7 +488,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     // case 'admin_getStoredState': {
     //   assertAdminOrigin(origin);
 
-    //   const ret = await getStoredState();
+    //   const ret = await getIotaStoredState();
     //   return ret;
     // }
 
@@ -499,7 +503,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //     throw InvalidParamsError.asSimpleError(validationError.message);
     //   }
 
-    //   const state = await getStoredState();
+    //   const state = await getIotaStoredState();
     //   switch (params.network) {
     //     case 'mainnet':
     //       state.mainnetUrl = params.url;
@@ -517,7 +521,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //       // No default action needed
     //       break;
     //   }
-    //   await updateState(state);
+    //   await updateIotaState(state);
 
     //   return;
     // }

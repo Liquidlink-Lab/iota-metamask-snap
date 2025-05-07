@@ -1,10 +1,9 @@
 import type { Transaction } from '@mysten/sui/transactions';
-import type { z } from 'zod';
 
 /**
  * Serialized wallet account type for the snap.
  */
-export interface SerializedWalletAccount {
+export interface SerializedIotaWalletAccount {
   address: string;
   publicKey: string;
   chains: string[];
@@ -14,14 +13,14 @@ export interface SerializedWalletAccount {
 /**
  * Input parameters for signing a personal message.
  */
-export interface SerializedSuiSignPersonalMessageInput {
+export interface SerializedIotaSignPersonalMessageInput {
   message: string;
 }
 
 /**
  * Input parameters for signing a transaction block.
  */
-export interface SerializedSuiSignTransactionBlockInput {
+export interface SerializedIotaSignTransactionBlockInput {
   transactionBlock: Transaction;
   chain: string;
 }
@@ -29,7 +28,7 @@ export interface SerializedSuiSignTransactionBlockInput {
 /**
  * Input parameters for signing and executing a transaction block.
  */
-export interface SerializedSuiSignAndExecuteTransactionBlockInput {
+export interface SerializedIotaSignAndExecuteTransactionBlockInput {
   transactionBlock: Transaction;
   chain: string;
   requestType?: 'WaitForEffectsCert' | 'WaitForLocalExecution';
@@ -49,12 +48,12 @@ export interface SerializedAdminSetFullnodeUrl {
 }
 
 /**
- * Deserialize a Sui sign message input.
+ * Deserialize an Iota sign message input.
  * @param serialized - The serialized input.
  * @returns The deserialized input.
  */
-export function deserializeSuiSignMessageInput(
-  serialized: SerializedSuiSignPersonalMessageInput,
+export function deserializeIotaSignMessageInput(
+  serialized: SerializedIotaSignPersonalMessageInput,
 ) {
   return {
     message: new Uint8Array(Buffer.from(serialized.message, 'base64')),
@@ -62,12 +61,12 @@ export function deserializeSuiSignMessageInput(
 }
 
 /**
- * Deserialize a Sui sign transaction block input.
+ * Deserialize an Iota sign transaction block input.
  * @param serialized - The serialized input.
  * @returns The deserialized input.
  */
-export function deserializeSuiSignTransactionBlockInput(
-  serialized: SerializedSuiSignTransactionBlockInput,
+export function deserializeIotaSignTransactionBlockInput(
+  serialized: SerializedIotaSignTransactionBlockInput,
 ) {
   return {
     transactionBlock: serialized.transactionBlock,
@@ -76,12 +75,12 @@ export function deserializeSuiSignTransactionBlockInput(
 }
 
 /**
- * Deserialize a Sui sign and execute transaction block input.
+ * Deserialize an Iota sign and execute transaction block input.
  * @param serialized - The serialized input.
  * @returns The deserialized input.
  */
-export function deserializeSuiSignAndExecuteTransactionBlockInput(
-  serialized: SerializedSuiSignAndExecuteTransactionBlockInput,
+export function deserializeIotaSignAndExecuteTransactionBlockInput(
+  serialized: SerializedIotaSignAndExecuteTransactionBlockInput,
 ) {
   return {
     transactionBlock: serialized.transactionBlock,
@@ -116,20 +115,20 @@ export function validate<T>(
 
 // Add mock validator functions for the schema types
 // Replace these with your actual validation logic
-export const SerializedSuiSignPersonalMessageInput = (
+export const SerializedIotaSignPersonalMessageInput = (
   params: unknown,
-): SerializedSuiSignPersonalMessageInput =>
-  params as SerializedSuiSignPersonalMessageInput;
+): SerializedIotaSignPersonalMessageInput =>
+  params as SerializedIotaSignPersonalMessageInput;
 
-export const SerializedSuiSignTransactionBlockInput = (
+export const SerializedIotaSignTransactionBlockInput = (
   params: unknown,
-): SerializedSuiSignTransactionBlockInput =>
-  params as SerializedSuiSignTransactionBlockInput;
+): SerializedIotaSignTransactionBlockInput =>
+  params as SerializedIotaSignTransactionBlockInput;
 
-export const SerializedSuiSignAndExecuteTransactionBlockInput = (
+export const SerializedIotaSignAndExecuteTransactionBlockInput = (
   params: unknown,
-): SerializedSuiSignAndExecuteTransactionBlockInput =>
-  params as SerializedSuiSignAndExecuteTransactionBlockInput;
+): SerializedIotaSignAndExecuteTransactionBlockInput =>
+  params as SerializedIotaSignAndExecuteTransactionBlockInput;
 
 export const SerializedAdminSetFullnodeUrl = (
   params: unknown,
