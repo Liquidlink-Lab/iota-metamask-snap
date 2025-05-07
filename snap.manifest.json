@@ -4,7 +4,7 @@
   "proposedName": "Iota",
   "repository": {
     "type": "git",
-    "url": "https://github.com/3MateLabs/sui-metamask-snap"
+    "url": "https://github.com/3MateLabs/iota-metamask-snap"
   },
   "source": {
     "shasum": "OWUg3eU5SxEb/XcGuluDWYp6ZJjKieCmptOxwEKw5mo=",
@@ -12,7 +12,7 @@
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "@3mate/sui-metamask-snap",
+        "packageName": "@3mate/iota-metamask-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }
