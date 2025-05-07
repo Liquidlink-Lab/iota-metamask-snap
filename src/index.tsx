@@ -257,17 +257,115 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         info = `**${origin}** is requesting to sign the following message (base64 encoded):`;
       }
 
+      console.log('Signing');
+
       const response = await snap.request({
         method: 'snap_dialog',
         params: {
           type: 'alert',
           content: (
             <Box>
-              <Text>
-                Hello, <Bold>{origin}</Bold>!
-              </Text>
-              <Text>Current gas fee estimates:</Text>
+              <Heading>Sign Message</Heading>
+              <Text>{info}</Text>
+              <Divider />
+              <Text>{decodedMessage}</Text>
+              <Divider />
             </Box>
+          ),
+        },
+      });
+
+      if (response !== null) {
+        throw UserRejectionError.asSimpleError();
+      }
+
+      const signed = await signMessage(keypair, input.message);
+
+      return signed;
+    }
+
+    case 'getAccounts': {
+      const keypair = await deriveKeypair();
+      return [serializedWalletAccountForPublicKey(keypair.getPublicKey())];
+    }
+
+    case 'signTransactionBlock': {
+      const [validationError, serialized] = validate(
+        request.params,
+        SerializedSuiSignTransactionBlockInput,
+      );
+      if (validationError !== undefined) {
+        throw InvalidParamsError.asSimpleError(validationError.message);
+      }
+      const input = deserializeSuiSignTransactionBlockInput(serialized);
+
+      const keypair = await deriveKeypair();
+      const sender = keypair.getPublicKey().toSuiAddress();
+      const result = await buildTransactionBlock({
+        chain: input.chain,
+        transactionBlock: input.transactionBlock as any, // Type compatibility fix
+        sender,
+      });
+
+      const balanceChangesSection = genBalanceChangesSection(
+        result.balanceChanges,
+      );
+      const operationsSection = genOperationsSection(
+        input.transactionBlock as any,
+      ); // Type compatibility fix
+
+      if (result.isError) {
+        let resultText = 'Dry run failed.';
+        if (result.errorMessage) {
+          resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
+        }
+
+        await snap.request({
+          method: 'snap_dialog',
+          params: {
+            type: 'alert',
+            content: (
+              <Box>
+                <Heading>Transaction failed.</Heading>
+                <Text>
+                  **{origin}** is requesting to **sign** a transaction block for
+                  **{input.chain}** but the **dry run failed**.
+                </Text>
+                {...balanceChangesSection}
+                {...operationsSection}
+                <Divider />
+                <Text>{resultText}</Text>
+              </Box>
+            ),
+          },
+        });
+
+        throw DryRunFailedError.asSimpleError(result.errorMessage);
+      }
+
+      const response = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: (
+            <>
+              <Divider />
+              <Heading>Sign a Transaction</Heading>
+              <Text>
+                **{origin}** is requesting to **sign** a transaction block for
+                **{input.chain}**.
+              </Text>
+              <Text>
+                Hint: you can manage your wallet at https://suisnap.com/
+              </Text>
+              {...balanceChangesSection}
+              {...operationsSection}
+              <Divider />
+              <Text>
+                Estimated gas fees: **
+                {calcTotalGasFeesDec(result.dryRunRes as any)} SUI**
+              </Text>
+            </>
           ),
         },
       });
@@ -276,106 +374,17 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw UserRejectionError.asSimpleError();
       }
 
-      const signed = await signMessage(keypair, input.message);
-      return signed;
+      const signed = await keypair.signTransaction(
+        result.transactionBlockBytes ?? new Uint8Array(),
+      );
+
+      const res: SuiSignTransactionBlockOutput = {
+        transactionBlockBytes: signed.bytes,
+        signature: signed.signature,
+      };
+
+      return res;
     }
-
-    // case 'signTransactionBlock': {
-    //   const [validationError, serialized] = validate(
-    //     request.params,
-    //     SerializedSuiSignTransactionBlockInput,
-    //   );
-    //   if (validationError !== undefined) {
-    //     throw InvalidParamsError.asSimpleError(validationError.message);
-    //   }
-    //   const input = deserializeSuiSignTransactionBlockInput(serialized);
-
-    //   const keypair = await deriveKeypair();
-    //   const sender = keypair.getPublicKey().toSuiAddress();
-    //   const result = await buildTransactionBlock({
-    //     chain: input.chain,
-    //     transactionBlock: input.transactionBlock as any, // Type compatibility fix
-    //     sender,
-    //   });
-
-    //   const balanceChangesSection = genBalanceChangesSection(
-    //     result.balanceChanges,
-    //   );
-    //   const operationsSection = genOperationsSection(
-    //     input.transactionBlock as any,
-    //   ); // Type compatibility fix
-
-    //   if (result.isError) {
-    //     let resultText = 'Dry run failed.';
-    //     if (result.errorMessage) {
-    //       resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
-    //     }
-
-    //     await snap.request({
-    //       method: 'snap_dialog',
-    //       params: {
-    //         type: 'alert',
-    //         content: (
-    //           <Divider>
-    //             <Heading>Transaction failed.</Heading>
-    //             <Text>
-    //               **{origin}** is requesting to **sign** a transaction block for
-    //               **{input.chain}** but the **dry run failed**.
-    //             </Text>
-    //             {...balanceChangesSection}
-    //             {...operationsSection}
-    //             <Divider />
-    //             <Text>{resultText}</Text>
-    //           </Divider>
-    //         ),
-    //       },
-    //     });
-
-    //     throw DryRunFailedError.asSimpleError(result.errorMessage);
-    //   }
-
-    //   const response = await snap.request({
-    //     method: 'snap_dialog',
-    //     params: {
-    //       type: 'confirmation',
-    //       content: (
-    //         <>
-    //           <Divider />
-    //           <Heading>Sign a Transaction</Heading>
-    //           <Text>
-    //             **{origin}** is requesting to **sign** a transaction block for
-    //             **{input.chain}**.
-    //           </Text>
-    //           <Text>
-    //             Hint: you can manage your wallet at https://suisnap.com/
-    //           </Text>
-    //           {...balanceChangesSection}
-    //           {...operationsSection}
-    //           <Divider />
-    //           <Text>
-    //             Estimated gas fees: **
-    //             {calcTotalGasFeesDec(result.dryRunRes as any)} SUI**
-    //           </Text>
-    //         </>
-    //       ),
-    //     },
-    //   });
-
-    //   if (response !== true) {
-    //     throw UserRejectionError.asSimpleError();
-    //   }
-
-    //   const signed = await keypair.signTransaction(
-    //     result.transactionBlockBytes ?? new Uint8Array(),
-    //   );
-
-    //   const res: SuiSignTransactionBlockOutput = {
-    //     transactionBlockBytes: signed.bytes,
-    //     signature: signed.signature,
-    //   };
-
-    //   return res;
-    // }
 
     // case 'signAndExecuteTransactionBlock': {
     //   const [validationError, serialized] = validate(
@@ -479,11 +488,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //   return ret;
     // }
 
-    case 'getAccounts': {
-      const keypair = await deriveKeypair();
-      return [serializedWalletAccountForPublicKey(keypair.getPublicKey())];
-    }
-
     // case 'admin_getStoredState': {
     //   assertAdminOrigin(origin);
 
@@ -524,6 +528,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
     //   return;
     // }
+
     default:
       throw InvalidRequestMethodError.asSimpleError(request.method);
   }
