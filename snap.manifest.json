@@ -1,18 +1,18 @@
 {
   "version": "0.0.1",
-  "description": "A Snap for making transactions on the Sui blockchain",
-  "proposedName": "Sui",
+  "description": "A Snap for making transactions on the Iota blockchain",
+  "proposedName": "Iota",
   "repository": {
     "type": "git",
-    "url": "https://github.com/3MateLabs/sui-metamask-snap"
+    "url": "https://github.com/3MateLabs/iota-metamask-snap"
   },
   "source": {
-    "shasum": "YjBca0Jvy/exXBvvLskLJ6shy2m0jTm0MwP/Uwt39L0=",
+    "shasum": "Dm4Js6UJF/czzHgSB7nCFT45z+Yhug4HrBTzadtEeIg=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "@3mate/sui-metamask-snap",
+        "packageName": "iota-metamask-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }
@@ -26,15 +26,12 @@
     "endowment:network-access": {},
     "snap_getBip32Entropy": [
       {
-        "path": [
-          "m",
-          "44'",
-          "784'"
-        ],
+        "path": ["m", "44'", "4218'"],
         "curve": "ed25519"
       }
     ],
     "snap_manageState": {}
   },
+  "platformVersion": "6.6.0",
   "manifestVersion": "0.1"
 }

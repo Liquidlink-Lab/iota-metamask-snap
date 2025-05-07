@@ -1,16 +1,21 @@
 {
   "compilerOptions": {
-    "composite": true,
     "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["DOM", "ES2020"],
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
+    "lib": ["ES2020", "DOM"],
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noErrorTruncation": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
     "strict": true,
-    "target": "ES2020",
-    "useUnknownInCatchVariables": false,
-    "emitDeclarationOnly": true
+    "target": "es2020",
+    //@New
+    "jsx": "react-jsx",
+    "jsxImportSource": "@metamask/snaps-sdk"
   },
-  "include": ["src"]
+
+  "include": ["**/*.ts", "**/*.tsx"]
 }
