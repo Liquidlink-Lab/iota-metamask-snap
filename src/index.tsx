@@ -2,20 +2,23 @@ import { SLIP10Node } from '@metamask/key-tree';
 import { Divider, Heading, Text } from '@metamask/snaps-sdk/jsx';
 import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
 import { blake2b } from '@noble/hashes/blake2b';
-import { SuiClient as IotaClient } from '@mysten/sui/client';
+import { IotaClient } from '@iota/iota-sdk/client';
 import {
   messageWithIntent,
   toSerializedSignature,
-} from '@mysten/sui/cryptography';
-import { Ed25519Keypair, Ed25519PublicKey } from '@mysten/sui/keypairs/ed25519';
-import type { Keypair, SignatureWithBytes } from '@mysten/sui/cryptography';
-import type { Transaction } from '@mysten/sui/transactions';
-import { toB64 } from '@mysten/sui/utils';
+} from '@iota/iota-sdk/cryptography';
+import {
+  Ed25519Keypair,
+  Ed25519PublicKey,
+} from '@iota/iota-sdk/keypairs/ed25519';
+import type { Keypair, SignatureWithBytes } from '@iota/iota-sdk/cryptography';
+import type { Transaction } from '@iota/iota-sdk/transactions';
+import { toB64 } from '@iota/iota-sdk/utils';
 import type {
-  SuiSignAndExecuteTransactionBlockOutput as IotaSignAndExecuteTransactionBlockOutput,
-  SuiSignPersonalMessageOutput as IotaSignPersonalMessageOutput,
-  SuiSignTransactionBlockOutput as IotaSignTransactionBlockOutput,
-} from '@mysten/wallet-standard';
+  IotaSignAndExecuteTransactionOutput,
+  IotaSignPersonalMessageOutput,
+  IotaSignTransactionOutput,
+} from '@iota/wallet-standard';
 
 import {
   DryRunFailedError,
@@ -33,7 +36,6 @@ import {
   deserializeIotaSignTransactionBlockInput,
   validate,
 } from './types';
-
 import type { SerializedIotaWalletAccount } from './types';
 import {
   assertAdminOrigin,
@@ -43,7 +45,6 @@ import {
   getStoredState as getIotaStoredState,
   updateState as updateIotaState,
 } from './util';
-
 import type { BalanceChange as IotaBalanceChange } from './util';
 
 /**
@@ -78,14 +79,14 @@ function serializedWalletAccountForPublicKey(
   publicKey: Ed25519PublicKey,
 ): SerializedIotaWalletAccount {
   return {
-    address: publicKey.toSuiAddress(),
+    address: publicKey.toIotaAddress(),
     publicKey: publicKey.toBase64(),
-    chains: ['sui:mainnet', 'sui:testnet', 'sui:devnet', 'sui:localnet'],
+    chains: ['iota:mainnet', 'iota:testnet', 'iota:devnet', 'iota:localnet'],
     features: [
-      'sui:signAndExecuteTransactionBlock',
-      'sui:signTransactionBlock',
-      'sui:signPersonalMessage',
-      'sui:signMessage',
+      'iota:signAndExecuteTransactionBlock',
+      'iota:signTransactionBlock',
+      'iota:signPersonalMessage',
+      'iota:signMessage',
     ],
   };
 }
@@ -255,7 +256,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         info = `**${origin}** is requesting to sign the following message (base64 encoded):`;
       }
 
-      return snap.request({
+      const response = await snap.request({
         method: 'snap_dialog',
         params: {
           type: 'confirmation',
@@ -271,14 +272,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         },
       });
 
-      if (response !== true) {
+      if (response !== null) {
         throw UserRejectionError.asSimpleError();
       }
 
       const signed = await signMessage(keypair, input.message);
 
-      const ret: IotaSignPersonalMessageOutput = signed;
-      return ret;
+      return signed;
     }
 
     // case 'signTransactionBlock': {

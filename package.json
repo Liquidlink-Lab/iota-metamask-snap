@@ -26,6 +26,8 @@
     "dev": "mm-snap watch"
   },
   "dependencies": {
+    "@iota/iota-sdk": "^1.0.1",
+    "@iota/wallet-standard": "^0.2.8",
     "@metamask/key-tree": "^9.0.0",
     "@metamask/snaps-jest": "^8.14.1",
     "@metamask/snaps-sdk": "^6.6.0",
