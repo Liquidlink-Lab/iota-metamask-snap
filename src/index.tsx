@@ -1,5 +1,5 @@
 import { SLIP10Node } from '@metamask/key-tree';
-import { Divider, Heading, Text } from '@metamask/snaps-sdk/jsx';
+import { Box, Divider, Heading, Text } from '@metamask/snaps-sdk/jsx';
 import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
 import { blake2b } from '@noble/hashes/blake2b';
 import { IotaClient } from '@iota/iota-sdk/client';
@@ -261,24 +261,31 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         params: {
           type: 'confirmation',
           content: (
-            <>
+            <Box>
               <Heading>Sign Message</Heading>
               <Text>{info}</Text>
               <Divider />
               <Text>{decodedMessage}</Text>
               <Divider />
-            </>
+            </Box>
           ),
         },
       });
 
-      if (response !== null) {
+      console.log('response', response);
+
+      if (response !== true) {
         throw UserRejectionError.asSimpleError();
       }
 
       const signed = await signMessage(keypair, input.message);
 
       return signed;
+    }
+
+    case 'getAccounts': {
+      const keypair = await deriveKeypair();
+      return [serializedWalletAccountForPublicKey(keypair.getPublicKey())];
     }
 
     // case 'signTransactionBlock': {
@@ -478,11 +485,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     //   const ret = res as any as IotaSignAndExecuteTransactionBlockOutput;
 
     //   return ret;
-    // }
-
-    // case 'getAccounts': {
-    //   const keypair = await deriveKeypair();
-    //   return [serializedWalletAccountForPublicKey(keypair.getPublicKey())];
     // }
 
     // case 'admin_getStoredState': {
