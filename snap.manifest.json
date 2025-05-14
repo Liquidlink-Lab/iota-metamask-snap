@@ -4,10 +4,10 @@
   "proposedName": "Iota",
   "repository": {
     "type": "git",
-    "url": "https://github.com/3MateLabs/iota-metamask-snap"
+    "url": "https://github.com/Liquidlink-Lab/iota-metamask-snap"
   },
   "source": {
-    "shasum": "Dm4Js6UJF/czzHgSB7nCFT45z+Yhug4HrBTzadtEeIg=",
+    "shasum": "5rCvykYuntbcMA9kUYk2++lfvjOv/HtnmEjLIfE0BhM=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -32,6 +32,6 @@
     ],
     "snap_manageState": {}
   },
-  "platformVersion": "6.6.0",
+  "platformVersion": "6.22.1",
   "manifestVersion": "0.1"
 }

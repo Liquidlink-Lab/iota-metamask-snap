@@ -21,7 +21,7 @@ export interface SerializedIotaSignPersonalMessageInput {
  * Input parameters for signing a transaction block.
  */
 export interface SerializedIotaSignTransactionBlockInput {
-  transactionBlock: Transaction;
+  transaction: Transaction;
   chain: string;
 }
 
@@ -69,7 +69,7 @@ export function deserializeIotaSignTransactionBlockInput(
   serialized: SerializedIotaSignTransactionBlockInput,
 ) {
   return {
-    transactionBlock: serialized.transactionBlock,
+    transaction: serialized.transaction,
     chain: serialized.chain,
   };
 }

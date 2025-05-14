@@ -12,11 +12,10 @@ import {
   Ed25519PublicKey,
 } from '@iota/iota-sdk/keypairs/ed25519';
 import type { Keypair, SignatureWithBytes } from '@iota/iota-sdk/cryptography';
-import type { Transaction } from '@iota/iota-sdk/transactions';
+import { Transaction } from '@iota/iota-sdk/transactions';
 import { toB64 } from '@iota/iota-sdk/utils';
 import type {
   IotaSignAndExecuteTransactionOutput,
-  IotaSignPersonalMessageOutput,
   IotaSignTransactionOutput,
 } from '@iota/wallet-standard';
 
@@ -272,8 +271,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         },
       });
 
-      console.log('response', response);
-
       if (response !== true) {
         throw UserRejectionError.asSimpleError();
       }
@@ -288,7 +285,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       return [serializedWalletAccountForPublicKey(keypair.getPublicKey())];
     }
 
-    case 'signTransactionBlock': {
+    case 'signTransaction': {
       const [validationError, serialized] = validate(
         request.params,
         SerializedIotaSignTransactionBlockInput,
@@ -300,18 +297,17 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       const keypair = await deriveKeypair();
       const sender = keypair.getPublicKey().toIotaAddress();
+
       const result = await buildIotaTransactionBlock({
         chain: input.chain,
-        transactionBlock: input.transactionBlock as any, // Type compatibility fix
+        transactionBlock: Transaction.from(input.transaction), // Type compatibility fix
         sender,
       });
 
       const balanceChangesSection = genBalanceChangesSection(
         result.balanceChanges,
       );
-      const operationsSection = genOperationsSection(
-        input.transactionBlock as any,
-      ); // Type compatibility fix
+      const operationsSection = genOperationsSection(input.transaction as any); // Type compatibility fix
 
       if (result.isError) {
         let resultText = 'Dry run failed.';
@@ -324,7 +320,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           params: {
             type: 'alert',
             content: (
-              <>
+              <Box>
                 <Heading>Transaction failed.</Heading>
                 <Text>
                   **{origin}** is requesting to **sign** a transaction block for
@@ -334,7 +330,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
                 {operationsSection}
                 <Divider />
                 <Text>{resultText}</Text>
-              </>
+              </Box>
             ),
           },
         });
@@ -347,7 +343,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         params: {
           type: 'confirmation',
           content: (
-            <>
+            <Box>
               <Heading>Sign a Transaction</Heading>
               <Text>
                 **{origin}** is requesting to **sign** a transaction block for
@@ -363,7 +359,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
                 Estimated gas fees: **
                 {calcTotalIotaGasFeesDec(result.dryRunRes as any)} IOTA**
               </Text>
-            </>
+            </Box>
           ),
         },
       });
@@ -384,7 +380,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       return res;
     }
 
-    case 'signAndExecuteTransactionBlock': {
+    case 'signAndExecuteTransaction': {
       const [validationError, serialized] = validate(
         request.params,
         SerializedIotaSignAndExecuteTransactionBlockInput,
@@ -425,7 +421,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           params: {
             type: 'alert',
             content: (
-              <>
+              <Box>
                 <Heading>Transaction failed.</Heading>
                 <Text>
                   **{origin}** is requesting to **execute** a transaction block
@@ -435,7 +431,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
                 {operationsSection}
                 <Divider />
                 <Text>{resultText}</Text>
-              </>
+              </Box>
             ),
           },
         });
@@ -448,7 +444,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         params: {
           type: 'confirmation',
           content: (
-            <>
+            <Box>
               <Heading>Approve a Transaction</Heading>
               <Text>
                 **{origin}** is requesting to **execute** a transaction block on
@@ -464,7 +460,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
                 Estimated gas fees: **
                 {calcTotalIotaGasFeesDec(result.dryRunRes as any)} IOTA**
               </Text>
-            </>
+            </Box>
           ),
         },
       });

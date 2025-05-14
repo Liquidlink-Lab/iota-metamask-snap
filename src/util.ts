@@ -1,4 +1,4 @@
-import { IotaClient } from '@iota/iota-sdk/client';
+import { getFullnodeUrl, IotaClient } from '@iota/iota-sdk/client';
 import type { Transaction } from '@iota/iota-sdk/transactions';
 import type { DryRunTransactionBlockResponse } from '@iota/iota-sdk/client';
 import Decimal from 'decimal.js';
@@ -35,10 +35,10 @@ export interface BuildTransactionBlockResult {
 /**
  * Default IOTA network URLs.
  */
-const DEFAULT_MAINNET_URL = 'https://api.shimmer.network';
-const DEFAULT_TESTNET_URL = 'https://api.testnet.shimmer.network';
-const DEFAULT_DEVNET_URL = 'https://api.testnet.shimmer.network';
-const DEFAULT_LOCALNET_URL = 'http://127.0.0.1:14265';
+const DEFAULT_MAINNET_URL = getFullnodeUrl('mainnet');
+const DEFAULT_TESTNET_URL = getFullnodeUrl('testnet');
+const DEFAULT_DEVNET_URL = getFullnodeUrl('devnet');
+const DEFAULT_LOCALNET_URL = getFullnodeUrl('localnet');
 
 /**
  * Assert that the request comes from an admin origin.
@@ -82,7 +82,7 @@ export async function getStoredState(): Promise<SnapState> {
     method: 'snap_manageState',
     params: { operation: 'get' },
   });
- 
+
   return (state as SnapState) ?? {};
 }
 
