@@ -1,0 +1,260 @@
+{
+  "ESLinting": [
+    {
+      "type": "ESLinting",
+      "description": "Use a `type` instead of an `interface`.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 16
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Use a `type` instead of an `interface`.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 23
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Use a `type` instead of an `interface`.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 31
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Use a `type` instead of an `interface`.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 45
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing return type on function.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 55
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing return type on function.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 68
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing return type on function.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 82
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Type Parameter name `T` must match the RegExp: /^.{3,}/u",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 99
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Import name `Decimal` must match one of the following formats: camelCase",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 4
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Use a `type` instead of an `interface`.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 9
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Use a `type` instead of an `interface`.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 19
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Use a `type` instead of an `interface`.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 27
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing JSDoc @param \"params.chain\" declaration.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 122
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing JSDoc @param \"params.transactionBlock\" declaration.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 122
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing JSDoc @param \"params.sender\" declaration.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 122
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing @param \"params.chain\"",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 124
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing @param \"params.transactionBlock\"",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 124
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Missing @param \"params.sender\"",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 124
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 153
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "ESLinting",
+      "description": "Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/util.ts",
+        "lineNum": 168
+      },
+      "riskRating": 1
+    }
+  ],
+  "ImproperTypeUsage": [
+    {
+      "type": "ImproperTypeUsage",
+      "description": "Parameter 'command' in arrow function uses 'any' type, which reduces type safety.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 4006
+      },
+      "riskRating": 2
+    },
+    {
+      "type": "ImproperTypeUsage",
+      "description": "Parameter 'schema' in function 'validate' uses 'any' type, which reduces type safety.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/types.ts",
+        "lineNum": 2547
+      },
+      "riskRating": 2
+    }
+  ],
+  "UnusedImports": [
+    {
+      "type": "UnusedImports",
+      "description": "Import 'buildTransactionBlock' is declared but never used.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 39
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "UnusedImports",
+      "description": "Import 'calcTotalGasFeesDec' is declared but never used.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 39
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "UnusedImports",
+      "description": "Import 'getFullnodeUrlForChain' is declared but never used.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 39
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "UnusedImports",
+      "description": "Import 'getStoredState' is declared but never used.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 39
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "UnusedImports",
+      "description": "Import 'updateState' is declared but never used.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 39
+      },
+      "riskRating": 1
+    },
+    {
+      "type": "UnusedImports",
+      "description": "Import 'BalanceChange' is declared but never used.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 47
+      },
+      "riskRating": 1
+    }
+  ]
+}

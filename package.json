@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Liquidlink-Lab/iota-metamask-snap"
+    "url": "git+https://github.com/Liquidlink-Lab/iota-metamask-snap.git"
   },
   "scripts": {
     "build": "mm-snap build",
@@ -71,5 +71,10 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "description": "IOTA wallet snap for Metamask",
+  "bugs": {
+    "url": "https://github.com/Liquidlink-Lab/iota-metamask-snap/issues"
+  },
+  "homepage": "https://github.com/Liquidlink-Lab/iota-metamask-snap#readme"
 }

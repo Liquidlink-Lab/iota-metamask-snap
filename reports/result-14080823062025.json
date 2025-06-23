@@ -1,0 +1,13 @@
+{
+  "UnusedImports": [
+    {
+      "type": "UnusedImports",
+      "description": "Import 'BalanceChange' is declared but never used.",
+      "position": {
+        "filePath": "/Users/liyongqi/Work/iota-metamask-snap/src/index.tsx",
+        "lineNum": 47
+      },
+      "riskRating": 1
+    }
+  ]
+}

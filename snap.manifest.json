@@ -4,10 +4,10 @@
   "proposedName": "Iota",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Liquidlink-Lab/iota-metamask-snap"
+    "url": "git+https://github.com/Liquidlink-Lab/iota-metamask-snap.git"
   },
   "source": {
-    "shasum": "5rCvykYuntbcMA9kUYk2++lfvjOv/HtnmEjLIfE0BhM=",
+    "shasum": "E37wPFzMZml/EbIDsskz3xuDhU43P3WP0O0iC1m5C0Q=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

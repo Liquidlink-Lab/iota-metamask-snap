@@ -38,13 +38,13 @@ import {
 import type { SerializedIotaWalletAccount } from './types';
 import {
   assertAdminOrigin,
-  buildTransactionBlock as buildIotaTransactionBlock,
-  calcTotalGasFeesDec as calcTotalIotaGasFeesDec,
-  getFullnodeUrlForChain as getIotaFullnodeUrlForChain,
-  getStoredState as getIotaStoredState,
-  updateState as updateIotaState,
+  BalanceChange,
+  buildTransactionBlock,
+  calcTotalGasFeesDec,
+  getFullnodeUrlForChain,
+  getStoredState,
+  updateState,
 } from './util';
-import type { BalanceChange as IotaBalanceChange } from './util';
 
 /**
  * Derive the Ed25519 keypair from user's MetaMask seed phrase.
@@ -131,47 +131,59 @@ function genTxBlockTransactionsText(txb: Transaction): string[] {
     const json = JSON.parse(JSON.stringify(txb));
     const commands = json?.data?.commands || [];
 
-    commands.forEach((command: any) => {
-      if (!command || !command.$kind) {
-        txStrings.push('**Unknown** operation');
-        return;
-      }
+    commands.forEach(
+      (command: {
+        $kind?: string;
+        package?: string;
+        module?: string;
+        function?: string;
+        sources?: Array<unknown>;
+        amounts?: Array<unknown>;
+        objects?: Array<unknown>;
+      }) => {
+        if (!command || !command.$kind) {
+          txStrings.push('**Unknown** operation');
+          return;
+        }
 
-      switch (command.$kind) {
-        case 'MoveCall': {
-          const target = `${command.package || ''}::${command.module || ''}::${command.function || ''}`;
-          const parts = target.split('::');
-          txStrings.push(`**Call** ${parts[0]}::${parts[1]}::**${parts[2]}**`);
-          break;
+        switch (command.$kind) {
+          case 'MoveCall': {
+            const target = `${command.package || ''}::${command.module || ''}::${command.function || ''}`;
+            const parts = target.split('::');
+            txStrings.push(
+              `**Call** ${parts[0]}::${parts[1]}::**${parts[2]}**`,
+            );
+            break;
+          }
+          case 'MergeCoins': {
+            const sourceCount = command.sources?.length || 0;
+            txStrings.push(`**Merge** (${sourceCount + 1}) coin objects`);
+            break;
+          }
+          case 'SplitCoins': {
+            const amountCount = command.amounts?.length || 0;
+            txStrings.push(`**Split** a coin into (${amountCount}) objects`);
+            break;
+          }
+          case 'TransferObjects': {
+            const objectCount = command.objects?.length || 0;
+            txStrings.push(`**Transfer** (${objectCount}) objects`);
+            break;
+          }
+          case 'Publish':
+            txStrings.push('**Publish** package');
+            break;
+          case 'MakeMoveVec':
+            txStrings.push('**Make** Move vector');
+            break;
+          case 'Upgrade':
+            txStrings.push('**Upgrade** package');
+            break;
+          default:
+            txStrings.push(`**${command.$kind}** operation`);
         }
-        case 'MergeCoins': {
-          const sourceCount = command.sources?.length || 0;
-          txStrings.push(`**Merge** (${sourceCount + 1}) coin objects`);
-          break;
-        }
-        case 'SplitCoins': {
-          const amountCount = command.amounts?.length || 0;
-          txStrings.push(`**Split** a coin into (${amountCount}) objects`);
-          break;
-        }
-        case 'TransferObjects': {
-          const objectCount = command.objects?.length || 0;
-          txStrings.push(`**Transfer** (${objectCount}) objects`);
-          break;
-        }
-        case 'Publish':
-          txStrings.push('**Publish** package');
-          break;
-        case 'MakeMoveVec':
-          txStrings.push('**Make** Move vector');
-          break;
-        case 'Upgrade':
-          txStrings.push('**Upgrade** package');
-          break;
-        default:
-          txStrings.push(`**${command.$kind}** operation`);
-      }
-    });
+      },
+    );
   } catch (error) {
     // Fallback in case of any parsing errors
     txStrings.push('**Transaction** with multiple operations');
@@ -190,9 +202,7 @@ function genTxBlockTransactionsText(txb: Transaction): string[] {
  * @param balanceChanges - Array of balance changes.
  * @returns UI elements for the balance changes section.
  */
-function genBalanceChangesSection(
-  balanceChanges: IotaBalanceChange[] | undefined,
-) {
+function genBalanceChangesSection(balanceChanges: BalanceChange[] | undefined) {
   if (!balanceChanges || balanceChanges.length === 0) {
     return [];
   }
@@ -298,7 +308,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const keypair = await deriveKeypair();
       const sender = keypair.getPublicKey().toIotaAddress();
 
-      const result = await buildIotaTransactionBlock({
+      const result = await buildTransactionBlock({
         chain: input.chain,
         transactionBlock: Transaction.from(input.transaction), // Type compatibility fix
         sender,
@@ -357,7 +367,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
               <Divider />
               <Text>
                 Estimated gas fees: **
-                {calcTotalIotaGasFeesDec(result.dryRunRes as any)} IOTA**
+                {calcTotalGasFeesDec(result.dryRunRes as any)} IOTA**
               </Text>
             </Box>
           ),
@@ -392,12 +402,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const input =
         deserializeIotaSignAndExecuteTransactionBlockInput(serialized);
 
-      const url = await getIotaFullnodeUrlForChain(input.chain);
+      const url = await getFullnodeUrlForChain(input.chain);
       const client = new IotaClient({ url });
 
       const keypair = await deriveKeypair();
       const sender = keypair.getPublicKey().toIotaAddress();
-      const result = await buildIotaTransactionBlock({
+      const result = await buildTransactionBlock({
         chain: input.chain,
         transactionBlock: input.transactionBlock as any, // Type compatibility fix
         sender,
@@ -458,7 +468,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
               <Divider />
               <Text>
                 Estimated gas fees: **
-                {calcTotalIotaGasFeesDec(result.dryRunRes as any)} IOTA**
+                {calcTotalGasFeesDec(result.dryRunRes as any)} IOTA**
               </Text>
             </Box>
           ),
@@ -485,7 +495,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case 'admin_getStoredState': {
       assertAdminOrigin(origin);
 
-      const ret = await getIotaStoredState();
+      const ret = await getStoredState();
       return ret;
     }
 
@@ -500,7 +510,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw InvalidParamsError.asSimpleError(validationError.message);
       }
 
-      const state = await getIotaStoredState();
+      const state = await getStoredState();
       switch (params.network) {
         case 'mainnet':
           state.mainnetUrl = params.url;
@@ -518,7 +528,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           // No default action needed
           break;
       }
-      await updateIotaState(state);
+      await updateState(state);
 
       return;
     }

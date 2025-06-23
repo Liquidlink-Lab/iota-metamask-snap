@@ -1,36 +1,36 @@
 import { getFullnodeUrl, IotaClient } from '@iota/iota-sdk/client';
 import type { Transaction } from '@iota/iota-sdk/transactions';
 import type { DryRunTransactionBlockResponse } from '@iota/iota-sdk/client';
-import Decimal from 'decimal.js';
+import decimal from 'decimal.js';
 
 /**
  * State for the Iota snaps.
  */
-export interface SnapState {
+export type SnapState = {
   mainnetUrl?: string;
   testnetUrl?: string;
   devnetUrl?: string;
   localnetUrl?: string;
-}
+};
 
 /**
- * Balance change interface.
+ * Balance change type.
  */
-export interface BalanceChange {
+export type BalanceChange = {
   symbol: string;
   amount: string;
-}
+};
 
 /**
  * Build transaction block result.
  */
-export interface BuildTransactionBlockResult {
+export type BuildTransactionBlockResult = {
   isError: boolean;
   transactionBlockBytes?: Uint8Array;
   errorMessage?: string;
   dryRunRes?: DryRunTransactionBlockResponse;
   balanceChanges?: BalanceChange[];
-}
+};
 
 /**
  * Default IOTA network URLs.
@@ -109,11 +109,11 @@ export function calcTotalGasFeesDec(
     return '0';
   }
 
-  const computationCost = new Decimal(
+  const computationCost = new decimal(
     dryRunRes.effects.gasUsed.computationCost,
   );
-  const storageCost = new Decimal(dryRunRes.effects.gasUsed.storageCost);
-  const storageRebate = new Decimal(dryRunRes.effects.gasUsed.storageRebate);
+  const storageCost = new decimal(dryRunRes.effects.gasUsed.storageCost);
+  const storageRebate = new decimal(dryRunRes.effects.gasUsed.storageRebate);
 
   const totalGasFee = computationCost.plus(storageCost).minus(storageRebate);
   return totalGasFee.div(1e9).toString();
@@ -122,6 +122,9 @@ export function calcTotalGasFeesDec(
 /**
  * Build a transaction block.
  * @param params - The parameters for building the transaction block.
+ * @param params.chain - The chain to build the transaction block for.
+ * @param params.transactionBlock - The transaction block to build.
+ * @param params.sender - The sender of the transaction block.
  * @returns The result of building the transaction block.
  */
 export async function buildTransactionBlock(params: {
@@ -150,7 +153,7 @@ export async function buildTransactionBlock(params: {
 
     // Handle error in dry run
     if (dryRunRes.effects?.status?.status !== 'success') {
-      const errorMessage = dryRunRes.effects?.status?.error || 'Unknown error';
+      const errorMessage = dryRunRes.effects?.status?.error ?? 'Unknown error';
       return {
         isError: true,
         transactionBlockBytes,
@@ -165,8 +168,8 @@ export async function buildTransactionBlock(params: {
       balanceChanges = dryRunRes.balanceChanges
         .filter((change) => change.owner === `0x${sender}`)
         .map((change) => ({
-          symbol: change.coinType.split('::').pop() || 'IOTA',
-          amount: new Decimal(change.amount).div(1e9).toString(),
+          symbol: change.coinType.split('::').pop() ?? 'IOTA',
+          amount: new decimal(change.amount).div(1e9).toString(),
         }));
     }
 

@@ -13,22 +13,22 @@ export interface SerializedIotaWalletAccount {
 /**
  * Input parameters for signing a personal message.
  */
-export interface SerializedIotaSignPersonalMessageInput {
+export type SerializedIotaSignPersonalMessageInput = {
   message: string;
-}
+};
 
 /**
  * Input parameters for signing a transaction block.
  */
-export interface SerializedIotaSignTransactionBlockInput {
+export type SerializedIotaSignTransactionBlockInput = {
   transaction: Transaction;
   chain: string;
-}
+};
 
 /**
  * Input parameters for signing and executing a transaction block.
  */
-export interface SerializedIotaSignAndExecuteTransactionBlockInput {
+export type SerializedIotaSignAndExecuteTransactionBlockInput = {
   transactionBlock: Transaction;
   chain: string;
   requestType?: 'WaitForEffectsCert' | 'WaitForLocalExecution';
@@ -37,15 +37,15 @@ export interface SerializedIotaSignAndExecuteTransactionBlockInput {
     showObjectChanges?: boolean;
     showEvents?: boolean;
   };
-}
+};
 
 /**
  * Input parameters for admin setting the fullnode URL.
  */
-export interface SerializedAdminSetFullnodeUrl {
+export type SerializedAdminSetFullnodeUrl = {
   network: 'mainnet' | 'testnet' | 'devnet' | 'localnet';
   url: string;
-}
+};
 
 /**
  * Deserialize an Iota sign message input.
@@ -54,7 +54,7 @@ export interface SerializedAdminSetFullnodeUrl {
  */
 export function deserializeIotaSignMessageInput(
   serialized: SerializedIotaSignPersonalMessageInput,
-) {
+): { message: Uint8Array } {
   return {
     message: new Uint8Array(Buffer.from(serialized.message, 'base64')),
   };
@@ -67,7 +67,7 @@ export function deserializeIotaSignMessageInput(
  */
 export function deserializeIotaSignTransactionBlockInput(
   serialized: SerializedIotaSignTransactionBlockInput,
-) {
+): { transaction: Transaction; chain: string } {
   return {
     transaction: serialized.transaction,
     chain: serialized.chain,
@@ -81,7 +81,18 @@ export function deserializeIotaSignTransactionBlockInput(
  */
 export function deserializeIotaSignAndExecuteTransactionBlockInput(
   serialized: SerializedIotaSignAndExecuteTransactionBlockInput,
-) {
+): {
+  transactionBlock: Transaction;
+  chain: string;
+  requestType: 'WaitForEffectsCert' | 'WaitForLocalExecution' | undefined;
+  options:
+    | {
+        showBalanceChanges?: boolean;
+        showObjectChanges?: boolean;
+        showEvents?: boolean;
+      }
+    | undefined;
+} {
   return {
     transactionBlock: serialized.transactionBlock,
     chain: serialized.chain,
@@ -96,19 +107,19 @@ export function deserializeIotaSignAndExecuteTransactionBlockInput(
  * @param schema - The schema to validate against.
  * @returns A tuple with the validation error (if any) and the validated params.
  */
-export function validate<T>(
+export function validate<TData>(
   params: unknown,
-  schema: any,
-): [Error | undefined, T] {
+  schema: (params: unknown) => TData,
+): [Error | undefined, TData] {
   try {
     // This is a simplified version since we don't know the exact validation library
     // you might be using. If you're using zod, you would use schema.parse(params)
-    const result = schema(params) as T;
+    const result = schema(params);
     return [undefined, result];
   } catch (error) {
     return [
       error instanceof Error ? error : new Error('Validation failed'),
-      {} as T,
+      {} as TData,
     ];
   }
 }
