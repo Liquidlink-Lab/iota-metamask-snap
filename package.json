@@ -1,6 +1,6 @@
 {
   "name": "iota-metamask-snap",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Liquidlink Labs",
   "main": "./dist/bundle.js",
   "license": "Apache-2.0",
