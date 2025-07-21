@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Snap for making transactions on the Iota blockchain",
   "proposedName": "Iota",
   "repository": {
@@ -7,12 +7,12 @@
     "url": "git+https://github.com/Liquidlink-Lab/iota-metamask-snap.git"
   },
   "source": {
-    "shasum": "E37wPFzMZml/EbIDsskz3xuDhU43P3WP0O0iC1m5C0Q=",
+    "shasum": "eUBtKt5CBnctj6qpx520aeFZwzP/LNSmV/nQ58IKUzg=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "iota-metamask-snap",
+        "packageName": "@liquidlink-lab/iota-metamask-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }
@@ -32,6 +32,6 @@
     ],
     "snap_manageState": {}
   },
-  "platformVersion": "6.22.1",
+  "platformVersion": "6.24.0",
   "manifestVersion": "0.1"
 }

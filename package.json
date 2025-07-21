@@ -1,5 +1,5 @@
 {
-  "name": "iota-metamask-snap",
+  "name": "@liquidlink-lab/iota-metamask-snap",
   "version": "0.0.2",
   "author": "Liquidlink Labs",
   "main": "./dist/bundle.js",
