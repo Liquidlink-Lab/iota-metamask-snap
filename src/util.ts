@@ -46,8 +46,48 @@ const DEFAULT_LOCALNET_URL = getFullnodeUrl('localnet');
  * @throws If the origin is not an admin origin.
  */
 export function assertAdminOrigin(origin: string): void {
-  if (origin !== 'https://iotasnap.com' && origin !== 'http://localhost:8000') {
+  // Only allow localhost for development/testing purposes
+  // Remove unregistered domains to prevent domain hijacking attacks
+  if (origin !== 'http://localhost:8000') {
     throw new Error('Unauthorized: Admin-only method');
+  }
+}
+
+/**
+ * Validate that a URL is safe for use as a fullnode URL.
+ * @param url - The URL to validate.
+ * @throws If the URL is invalid or potentially malicious.
+ */
+export function validateFullnodeUrl(url: string): void {
+  try {
+    const parsedUrl = new URL(url);
+
+    // Only allow HTTPS and HTTP protocols
+    if (!['https:', 'http:'].includes(parsedUrl.protocol)) {
+      throw new Error('Invalid protocol: Only HTTP and HTTPS are allowed');
+    }
+
+    // Prevent localhost/private IP access in production URLs
+    // Allow localhost only for development
+    const hostname = parsedUrl.hostname.toLowerCase();
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') || hostname.startsWith('172.')) {
+      // Only allow if it's a development environment
+      if (!url.includes('localhost')) {
+        throw new Error('Private IP addresses are not allowed for fullnode URLs');
+      }
+    }
+
+    // Basic hostname validation
+    if (hostname.length === 0) {
+      throw new Error('Invalid hostname');
+    }
+
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error('Invalid URL format');
+    }
+    throw error;
   }
 }
 

@@ -7,7 +7,7 @@
     "url": "git+https://github.com/Liquidlink-Lab/iota-metamask-snap.git"
   },
   "source": {
-    "shasum": "oo46XX6o72PBzYCfQLhR6uKoaZfVg3pq3s0yFrtvphU=",
+    "shasum": "C0ZAX/pC9W85XewYPf+26sF57OvDBaHREEFyyvuGI9I=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
