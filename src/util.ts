@@ -40,49 +40,28 @@ const DEFAULT_TESTNET_URL = getFullnodeUrl('testnet');
 const DEFAULT_DEVNET_URL = getFullnodeUrl('devnet');
 const DEFAULT_LOCALNET_URL = getFullnodeUrl('localnet');
 
-/**
- * Assert that the request comes from an admin origin.
- * @param origin - The origin of the request.
- * @throws If the origin is not an admin origin.
- */
 export function assertAdminOrigin(origin: string): void {
-  // Only allow localhost for development/testing purposes
-  // Remove unregistered domains to prevent domain hijacking attacks
   if (origin !== 'http://localhost:8000') {
     throw new Error('Unauthorized: Admin-only method');
   }
 }
 
-/**
- * Validate that a URL is safe for use as a fullnode URL.
- * @param url - The URL to validate.
- * @throws If the URL is invalid or potentially malicious.
- */
 export function validateFullnodeUrl(url: string): void {
   try {
     const parsedUrl = new URL(url);
-
-    // Only allow HTTPS and HTTP protocols
     if (!['https:', 'http:'].includes(parsedUrl.protocol)) {
       throw new Error('Invalid protocol: Only HTTP and HTTPS are allowed');
     }
-
-    // Prevent localhost/private IP access in production URLs
-    // Allow localhost only for development
     const hostname = parsedUrl.hostname.toLowerCase();
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') ||
       hostname.startsWith('10.') || hostname.startsWith('172.')) {
-      // Only allow if it's a development environment
       if (!url.includes('localhost')) {
         throw new Error('Private IP addresses are not allowed for fullnode URLs');
       }
     }
-
-    // Basic hostname validation
     if (hostname.length === 0) {
       throw new Error('Invalid hostname');
     }
-
   } catch (error) {
     if (error instanceof TypeError) {
       throw new Error('Invalid URL format');
@@ -91,87 +70,48 @@ export function validateFullnodeUrl(url: string): void {
   }
 }
 
-/**
- * Get the fullnode URL for a specific chain.
- * @param chain - The chain to get the URL for.
- * @returns The fullnode URL.
- */
 export async function getFullnodeUrlForChain(chain: string): Promise<string> {
   const state = await getStoredState();
-
   switch (chain) {
-    case 'iota:mainnet':
-      return state.mainnetUrl ?? DEFAULT_MAINNET_URL;
-    case 'iota:testnet':
-      return state.testnetUrl ?? DEFAULT_TESTNET_URL;
-    case 'iota:devnet':
-      return state.devnetUrl ?? DEFAULT_DEVNET_URL;
-    case 'iota:localnet':
-      return state.localnetUrl ?? DEFAULT_LOCALNET_URL;
-    default:
-      throw new Error(`Unsupported chain: ${chain}`);
+    case 'iota:mainnet': return state.mainnetUrl ?? DEFAULT_MAINNET_URL;
+    case 'iota:testnet': return state.testnetUrl ?? DEFAULT_TESTNET_URL;
+    case 'iota:devnet': return state.devnetUrl ?? DEFAULT_DEVNET_URL;
+    case 'iota:localnet': return state.localnetUrl ?? DEFAULT_LOCALNET_URL;
+    default: throw new Error(`Unsupported chain: ${chain}`);
   }
 }
 
-/**
- * Get the stored state from the snap.
- * @returns The stored state.
- */
 export async function getStoredState(): Promise<SnapState> {
   const state = await snap.request({
     method: 'snap_manageState',
     params: { operation: 'get' },
   });
-
   return (state as SnapState) ?? {};
 }
 
-/**
- * Update the stored state in the snap.
- * @param state - The new state to store.
- */
 export async function updateState(state: SnapState): Promise<void> {
   await snap.request({
     method: 'snap_manageState',
     params: {
       operation: 'update',
       newState: state as Record<string, any>,
-      encrypted: true // Ensure encrypted storage for security
+      encrypted: true
     },
   });
 }
 
-/**
- * Calculate the total gas fees in decimal format.
- * @param dryRunRes - The dry run transaction block response.
- * @returns The total gas fees in decimal format, or 'Unable to estimate' if calculation fails.
- */
-export function calcTotalGasFeesDec(
-  dryRunRes: DryRunTransactionBlockResponse,
-): string {
+export function calcTotalGasFeesDec(dryRunRes: DryRunTransactionBlockResponse): string {
   try {
-    if (!dryRunRes?.effects?.gasUsed) {
-      return 'Unable to estimate';
-    }
-
+    if (!dryRunRes?.effects?.gasUsed) return 'Unable to estimate';
     const gasUsed = dryRunRes.effects.gasUsed;
-
-    // Check if all required gas fields are present
-    if (gasUsed.computationCost === undefined ||
-      gasUsed.storageCost === undefined ||
-      gasUsed.storageRebate === undefined) {
+    if (gasUsed.computationCost === undefined || gasUsed.storageCost === undefined || gasUsed.storageRebate === undefined) {
       return 'Unable to estimate';
     }
-
     const computationCost = new decimal(gasUsed.computationCost);
     const storageCost = new decimal(gasUsed.storageCost);
     const storageRebate = new decimal(gasUsed.storageRebate);
-
     const totalGasFee = computationCost.plus(storageCost).minus(storageRebate);
-    const result = totalGasFee.div(1e9);
-
-    // Return '0' for truly free transactions, not 'Unable to estimate'
-    return result.toString();
+    return totalGasFee.div(1e9).toString();
   } catch (error) {
     return 'Unable to estimate';
   }

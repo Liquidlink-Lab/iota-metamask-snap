@@ -22,7 +22,6 @@ import {
   deserializeIotaSignTransactionBlockInput,
   validate,
 } from './types';
-
 import {
   assertAdminOrigin,
   buildTransactionBlock,
@@ -38,23 +37,17 @@ import { genBalanceChangesSection, genOperationsSection } from './iota-utils';
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
   switch (request.method) {
     case 'signPersonalMessage': {
-      const [validationError, serialized] = validate(
-        request.params,
-        SerializedIotaSignPersonalMessageInput,
-      );
+      const [validationError, serialized] = validate(request.params, SerializedIotaSignPersonalMessageInput);
       if (validationError !== undefined) {
         throw InvalidParamsError.asSimpleError(validationError.message);
       }
       const input = deserializeIotaSignMessageInput(serialized);
-
       let decodedMessage = new TextDecoder().decode(input.message);
       let info = `**${origin}** is requesting to sign the following message:`;
-      // 修正控制字元判斷正則 - 檢測所有控制字元和格式字元
       if (/[\p{Cc}\p{Cf}]/u.test(decodedMessage)) {
         decodedMessage = Buffer.from(input.message).toString('base64');
         info = `**${origin}** is requesting to sign the following message (base64 encoded):`;
       }
-
       const response = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -70,11 +63,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
           ),
         },
       });
-
       if (response !== true) {
         throw UserRejectionError.asSimpleError();
       }
-
       const signed = await signPersonalMessage(input.message);
       return signed;
     }
@@ -84,34 +75,25 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     }
 
     case 'signTransaction': {
-      const [validationError, serialized] = validate(
-        request.params,
-        SerializedIotaSignTransactionBlockInput,
-      );
+      const [validationError, serialized] = validate(request.params, SerializedIotaSignTransactionBlockInput);
       if (validationError !== undefined) {
         throw InvalidParamsError.asSimpleError(validationError.message);
       }
       const input = deserializeIotaSignTransactionBlockInput(serialized);
-
       const account = await getAccountInfo();
       const sender = account.address;
-
-      // 建立交易區塊並保存 dry-run 結果
       const result = await buildTransactionBlock({
         chain: input.chain,
         transactionBlock: Transaction.from(input.transaction),
         sender,
       });
-
       const balanceChangesSection = genBalanceChangesSection(result.balanceChanges);
       const operationsSection = genOperationsSection(input.transaction as any);
-
       if (result.isError) {
         let resultText = 'Dry run failed.';
         if (result.errorMessage) {
           resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
         }
-
         await snap.request({
           method: 'snap_dialog',
           params: {
@@ -119,10 +101,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
             content: (
               <Box>
                 <Heading>Transaction failed.</Heading>
-                <Text>
-                  **{origin}** is requesting to **sign** a transaction block for
-                  **{input.chain}** but the **dry run failed**.
-                </Text>
+                <Text>**{origin}** is requesting to **sign** a transaction block for **{input.chain}** but the **dry run failed**.</Text>
                 {balanceChangesSection}
                 {operationsSection}
                 <Divider />
@@ -131,21 +110,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
             ),
           },
         });
-
         throw DryRunFailedError.asSimpleError(result.errorMessage);
       }
-
-      // 修正 Gas 費用顯示問題
-      const gasFeeText = result.dryRunRes
-        ? calcTotalGasFeesDec(result.dryRunRes as any)
-        : 'Unable to estimate';
-
-      const gasFeeDisplay = gasFeeText === '0'
-        ? '0 IOTA (free transaction)'
-        : gasFeeText === 'Unable to estimate'
-          ? 'Unable to estimate gas fees'
-          : `${gasFeeText} IOTA`;
-
+      const gasFeeText = result.dryRunRes ? calcTotalGasFeesDec(result.dryRunRes as any) : 'Unable to estimate';
+      const gasFeeDisplay = gasFeeText === '0' ? '0 IOTA (free transaction)' : gasFeeText === 'Unable to estimate' ? 'Unable to estimate gas fees' : `${gasFeeText} IOTA`;
       const response = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -153,29 +121,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
           content: (
             <Box>
               <Heading>Sign a Transaction</Heading>
-              <Text>
-                **{origin}** is requesting to **sign** a transaction block for
-                **{input.chain}**.
-              </Text>
-              <Text>
-                Hint: you can manage your wallet through your dApp interface
-              </Text>
+              <Text>**{origin}** is requesting to **sign** a transaction block for **{input.chain}**.</Text>
+              <Text>Hint: you can manage your wallet through your dApp interface</Text>
               {balanceChangesSection}
               {operationsSection}
               <Divider />
-              <Text>
-                Estimated gas fees: **{gasFeeDisplay}**
-              </Text>
+              <Text>Estimated gas fees: **{gasFeeDisplay}**</Text>
             </Box>
           ),
         },
       });
-
       if (response !== true) {
         throw UserRejectionError.asSimpleError();
       }
-
-      // 確保簽署的是 dry-run 驗證過的交易
       const signed = await signTxBlock(result.transactionBlockBytes ?? new Uint8Array());
       const res: IotaSignTransactionOutput = {
         bytes: signed.bytes,
@@ -185,34 +143,25 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     }
 
     case 'signAndExecuteTransaction': {
-      const [validationError, serialized] = validate(
-        request.params,
-        SerializedIotaSignAndExecuteTransactionBlockInput,
-      );
+      const [validationError, serialized] = validate(request.params, SerializedIotaSignAndExecuteTransactionBlockInput);
       if (validationError !== undefined) {
         throw InvalidParamsError.asSimpleError(validationError.message);
       }
-
       const input = deserializeIotaSignAndExecuteTransactionBlockInput(serialized);
       const url = await getFullnodeUrlForChain(input.chain);
       const client = new IotaClient({ url });
-
-      // 建立交易區塊並保存 dry-run 結果
       const result = await buildTransactionBlock({
         chain: input.chain,
         transactionBlock: input.transactionBlock as any,
         sender: (await getAccountInfo()).address,
       });
-
       const balanceChangesSection = genBalanceChangesSection(result.balanceChanges);
       const operationsSection = genOperationsSection(input.transactionBlock as any);
-
       if (result.isError) {
         let resultText = 'Dry run failed.';
         if (result.errorMessage) {
           resultText = `Dry run failed with the following error: **${result.errorMessage}**`;
         }
-
         await snap.request({
           method: 'snap_dialog',
           params: {
@@ -220,10 +169,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
             content: (
               <Box>
                 <Heading>Transaction failed.</Heading>
-                <Text>
-                  **{origin}** is requesting to **execute** a transaction block
-                  on **{input.chain}** but the **dry run failed**.
-                </Text>
+                <Text>**{origin}** is requesting to **execute** a transaction block on **{input.chain}** but the **dry run failed**.</Text>
                 {balanceChangesSection}
                 {operationsSection}
                 <Divider />
@@ -232,21 +178,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
             ),
           },
         });
-
         throw DryRunFailedError.asSimpleError(result.errorMessage);
       }
-
-      // 修正 Gas 費用顯示問題
-      const gasFeeText = result.dryRunRes
-        ? calcTotalGasFeesDec(result.dryRunRes as any)
-        : 'Unable to estimate';
-
-      const gasFeeDisplay = gasFeeText === '0'
-        ? '0 IOTA (free transaction)'
-        : gasFeeText === 'Unable to estimate'
-          ? 'Unable to estimate gas fees'
-          : `${gasFeeText} IOTA`;
-
+      const gasFeeText = result.dryRunRes ? calcTotalGasFeesDec(result.dryRunRes as any) : 'Unable to estimate';
+      const gasFeeDisplay = gasFeeText === '0' ? '0 IOTA (free transaction)' : gasFeeText === 'Unable to estimate' ? 'Unable to estimate gas fees' : `${gasFeeText} IOTA`;
       const response = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -254,30 +189,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
           content: (
             <Box>
               <Heading>Approve a Transaction</Heading>
-              <Text>
-                **{origin}** is requesting to **execute** a transaction block on
-                **{input.chain}**.
-              </Text>
-              <Text>
-                Hint: you can manage your wallet through your dApp interface
-              </Text>
+              <Text>**{origin}** is requesting to **execute** a transaction block on **{input.chain}**.</Text>
+              <Text>Hint: you can manage your wallet through your dApp interface</Text>
               {balanceChangesSection}
               {operationsSection}
               <Divider />
-              <Text>
-                Estimated gas fees: **{gasFeeDisplay}**
-              </Text>
+              <Text>Estimated gas fees: **{gasFeeDisplay}**</Text>
             </Box>
           ),
         },
       });
-
       if (response !== true) {
         throw UserRejectionError.asSimpleError();
       }
-
-      // 確保執行的是 dry-run 驗證過的交易
-      // 使用 buildTransactionBlock 的結果來確保一致性
       const res = await signAndExecuteTransaction(
         client,
         Transaction.from(result.transactionBlockBytes ?? new Uint8Array()),
@@ -296,22 +220,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case 'admin_setFullnodeUrl': {
       assertAdminOrigin(origin);
-      const [validationError, params] = validate(
-        request.params,
-        SerializedAdminSetFullnodeUrl,
-      );
+      const [validationError, params] = validate(request.params, SerializedAdminSetFullnodeUrl);
       if (validationError !== undefined) {
         throw InvalidParamsError.asSimpleError(validationError.message);
       }
-
-      // Security enhancement: Validate URL format and safety
       try {
         validateFullnodeUrl(params.url);
       } catch (error) {
         throw InvalidParamsError.asSimpleError(`Invalid fullnode URL: ${(error as Error).message}`);
       }
-
-      // Security enhancement: Require user confirmation for fullnode URL changes
       const response = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -319,44 +236,26 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
           content: (
             <Box>
               <Heading>⚠️ Change Network Node URL</Heading>
-              <Text>
-                **{origin}** is requesting to change the **{params.network}** network node URL.
-              </Text>
+              <Text>**{origin}** is requesting to change the **{params.network}** network node URL.</Text>
               <Divider />
               <Text>**New URL:** {params.url}</Text>
               <Divider />
-              <Text>
-                ⚠️ **Warning**: Changing the node URL can affect your wallet's view of the blockchain.
-                Only approve if you trust this source and the new URL.
-              </Text>
-              <Text>
-                Malicious nodes could show incorrect balances or transaction data.
-              </Text>
+              <Text>⚠️ **Warning**: Changing the node URL can affect your wallet's view of the blockchain. Only approve if you trust this source and the new URL.</Text>
+              <Text>Malicious nodes could show incorrect balances or transaction data.</Text>
             </Box>
           ),
         },
       });
-
       if (response !== true) {
         throw UserRejectionError.asSimpleError();
       }
-
       const state = await getStoredState();
       switch (params.network) {
-        case 'mainnet':
-          state.mainnetUrl = params.url;
-          break;
-        case 'testnet':
-          state.testnetUrl = params.url;
-          break;
-        case 'devnet':
-          state.devnetUrl = params.url;
-          break;
-        case 'localnet':
-          state.localnetUrl = params.url;
-          break;
-        default:
-          break;
+        case 'mainnet': state.mainnetUrl = params.url; break;
+        case 'testnet': state.testnetUrl = params.url; break;
+        case 'devnet': state.devnetUrl = params.url; break;
+        case 'localnet': state.localnetUrl = params.url; break;
+        default: break;
       }
       await updateState(state);
       return { success: true };
