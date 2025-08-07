@@ -133,30 +133,48 @@ export async function getStoredState(): Promise<SnapState> {
 export async function updateState(state: SnapState): Promise<void> {
   await snap.request({
     method: 'snap_manageState',
-    params: { operation: 'update', newState: state as Record<string, any> },
+    params: {
+      operation: 'update',
+      newState: state as Record<string, any>,
+      encrypted: true // Ensure encrypted storage for security
+    },
   });
 }
 
 /**
  * Calculate the total gas fees in decimal format.
  * @param dryRunRes - The dry run transaction block response.
- * @returns The total gas fees in decimal format.
+ * @returns The total gas fees in decimal format, or 'Unable to estimate' if calculation fails.
  */
 export function calcTotalGasFeesDec(
   dryRunRes: DryRunTransactionBlockResponse,
 ): string {
-  if (!dryRunRes?.effects?.gasUsed) {
-    return '0';
+  try {
+    if (!dryRunRes?.effects?.gasUsed) {
+      return 'Unable to estimate';
+    }
+
+    const gasUsed = dryRunRes.effects.gasUsed;
+
+    // Check if all required gas fields are present
+    if (gasUsed.computationCost === undefined ||
+      gasUsed.storageCost === undefined ||
+      gasUsed.storageRebate === undefined) {
+      return 'Unable to estimate';
+    }
+
+    const computationCost = new decimal(gasUsed.computationCost);
+    const storageCost = new decimal(gasUsed.storageCost);
+    const storageRebate = new decimal(gasUsed.storageRebate);
+
+    const totalGasFee = computationCost.plus(storageCost).minus(storageRebate);
+    const result = totalGasFee.div(1e9);
+
+    // Return '0' for truly free transactions, not 'Unable to estimate'
+    return result.toString();
+  } catch (error) {
+    return 'Unable to estimate';
   }
-
-  const computationCost = new decimal(
-    dryRunRes.effects.gasUsed.computationCost,
-  );
-  const storageCost = new decimal(dryRunRes.effects.gasUsed.storageCost);
-  const storageRebate = new decimal(dryRunRes.effects.gasUsed.storageRebate);
-
-  const totalGasFee = computationCost.plus(storageCost).minus(storageRebate);
-  return totalGasFee.div(1e9).toString();
 }
 
 /**
