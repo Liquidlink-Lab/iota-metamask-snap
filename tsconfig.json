@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2020", "DOM"],
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noErrorTruncation": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2020",
+    //@New
+    "jsx": "react-jsx",
+    "jsxImportSource": "@metamask/snaps-sdk"
+  },
+
+  "include": ["**/*.ts", "**/*.tsx"]
+}
