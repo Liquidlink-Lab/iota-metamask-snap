@@ -40,44 +40,6 @@ const DEFAULT_TESTNET_URL = getFullnodeUrl('testnet');
 const DEFAULT_DEVNET_URL = getFullnodeUrl('devnet');
 const DEFAULT_LOCALNET_URL = getFullnodeUrl('localnet');
 
-export function assertAdminOrigin(origin: string): void {
-  if (origin !== 'http://localhost:8000') {
-    throw new Error('Unauthorized: Admin-only method');
-  }
-}
-
-export function validateFullnodeUrl(url: string): void {
-  try {
-    const parsedUrl = new URL(url);
-    if (!['https:', 'http:'].includes(parsedUrl.protocol)) {
-      throw new Error('Invalid protocol: Only HTTP and HTTPS are allowed');
-    }
-    const hostname = parsedUrl.hostname.toLowerCase();
-    if (hostname.length === 0) throw new Error('Invalid hostname');
-    if (hostname === 'localhost') return;
-    const isPrivateIP =
-      hostname === '127.0.0.1' ||
-      hostname.startsWith('192.168.') ||
-      hostname.startsWith('10.') ||
-      isPrivate172Range(hostname);
-    if (isPrivateIP) throw new Error('Private IP addresses are not allowed for fullnode URLs');
-  } catch (error) {
-    if (error instanceof TypeError) {
-      throw new Error('Invalid URL format');
-    }
-    throw error;
-  }
-}
-
-function isPrivate172Range(hostname: string): boolean {
-  const parts = hostname.split('.');
-  if (parts.length !== 4 || parts[0] !== '172') return false
-  const secondOctet = parts[1];
-  if (!secondOctet) return false;
-  const octetNum = parseInt(secondOctet, 10);
-  return !isNaN(octetNum) && octetNum >= 16 && octetNum <= 31;
-}
-
 export async function getFullnodeUrlForChain(chain: string): Promise<string> {
   const state = await getStoredState();
   switch (chain) {

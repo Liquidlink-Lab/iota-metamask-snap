@@ -23,13 +23,11 @@ import {
   validate,
 } from './types';
 import {
-  assertAdminOrigin,
   buildTransactionBlock,
   calcTotalGasFeesDec,
   getFullnodeUrlForChain,
   getStoredState,
   updateState,
-  validateFullnodeUrl,
 } from './util';
 import { signPersonalMessage, signTxBlock, getAccountInfo, signAndExecuteTransaction } from './keypair-ops';
 import { genBalanceChangesSection, genOperationsSection } from './iota-utils';
@@ -210,55 +208,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
       );
       const ret = res as any as IotaSignAndExecuteTransactionOutput;
       return ret;
-    }
-
-    case 'admin_getStoredState': {
-      assertAdminOrigin(origin);
-      const ret = await getStoredState();
-      return ret;
-    }
-
-    case 'admin_setFullnodeUrl': {
-      assertAdminOrigin(origin);
-      const [validationError, params] = validate(request.params, SerializedAdminSetFullnodeUrl);
-      if (validationError !== undefined) {
-        throw InvalidParamsError.asSimpleError(validationError.message);
-      }
-      try {
-        validateFullnodeUrl(params.url);
-      } catch (error) {
-        throw InvalidParamsError.asSimpleError(`Invalid fullnode URL: ${(error as Error).message}`);
-      }
-      const response = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: (
-            <Box>
-              <Heading>⚠️ Change Network Node URL</Heading>
-              <Text>**{origin}** is requesting to change the **{params.network}** network node URL.</Text>
-              <Divider />
-              <Text>**New URL:** {params.url}</Text>
-              <Divider />
-              <Text>⚠️ **Warning**: Changing the node URL can affect your wallet's view of the blockchain. Only approve if you trust this source and the new URL.</Text>
-              <Text>Malicious nodes could show incorrect balances or transaction data.</Text>
-            </Box>
-          ),
-        },
-      });
-      if (response !== true) {
-        throw UserRejectionError.asSimpleError();
-      }
-      const state = await getStoredState();
-      switch (params.network) {
-        case 'mainnet': state.mainnetUrl = params.url; break;
-        case 'testnet': state.testnetUrl = params.url; break;
-        case 'devnet': state.devnetUrl = params.url; break;
-        case 'localnet': state.localnetUrl = params.url; break;
-        default: break;
-      }
-      await updateState(state);
-      return { success: true };
     }
 
     default:
