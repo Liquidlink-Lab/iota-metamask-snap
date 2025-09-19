@@ -8,7 +8,7 @@
         "@iota/wallet-standard": "^0.2.8",
         "@metamask/key-tree": "^9.0.0",
         "@metamask/snaps-jest": "^8.14.1",
-        "@metamask/snaps-sdk": "^6.6.0",
+        "@metamask/snaps-sdk": "6.22.0",
         "@noble/hashes": "^1.3.2",
         "ajv": "^8.12.0",
         "buffer": "^6.0.3",
@@ -270,7 +270,7 @@
 
     "@metamask/post-message-stream": ["@metamask/post-message-stream@10.0.0", "", { "dependencies": { "@metamask/utils": "^11.4.0", "readable-stream": "3.6.2" } }, "sha512-nFepq24aGQw81hkSgCIEBYFpNocnLZpIArCEICdT74pLTMXLgm4G8aHSszF+sOOvnMKW8zV56og9ImZSondIjA=="],
 
-    "@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
+    "@metamask/providers": ["@metamask/providers@21.0.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-qSKfQQYX4AsKxWcalJjmIce557wa9KWlRqSzMbmpcC2ULo3JlYCfJIi42u3mooaPxK2l+9AdtzLSVbLRsBYnPA=="],
 
     "@metamask/rpc-errors": ["@metamask/rpc-errors@7.0.3", "", { "dependencies": { "@metamask/utils": "^11.4.2", "fast-safe-stringify": "^2.0.6" } }, "sha512-nrEaeBawm8yFU7hetJKok/CUs0tQsWtTqp3OLbFhPUMXYqU7uI5LAV5vi9o7rTjFkUyof7Nzbw5bea5+1ou+dg=="],
 
@@ -294,7 +294,7 @@
 
     "@metamask/snaps-sandbox": ["@metamask/snaps-sandbox@1.0.0", "", {}, "sha512-0I3zHtBqnCIBSIV6D5HtOgWhSA+jiK05oIhusnCG09aJfqYecDk8RBKCVpoeQroCX1AhiA1n5APbaSfdzflnCA=="],
 
-    "@metamask/snaps-sdk": ["@metamask/snaps-sdk@6.24.0", "", { "dependencies": { "@metamask/key-tree": "^10.1.1", "@metamask/providers": "^22.1.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/superstruct": "^3.2.1", "@metamask/utils": "^11.4.0" } }, "sha512-1MjfKt8fsKfNLs69xWD9XNtCFstth4mGvzkfXZdm37yZn8Hu4PHE56AFvTvTlYua3zRTuEHXn1PALDGnLs6jPw=="],
+    "@metamask/snaps-sdk": ["@metamask/snaps-sdk@6.22.0", "", { "dependencies": { "@metamask/key-tree": "^10.1.1", "@metamask/providers": "^21.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/superstruct": "^3.2.1", "@metamask/utils": "^11.2.0" } }, "sha512-xZNQJ0UNQ1+5oZsZ2gph+8kO1B1Gr5hyYvshM2hPlhbaMA7W9C4c7pUUAWw7BOJ0JrCDSnPY//o1pjImYKxNOg=="],
 
     "@metamask/snaps-simulation": ["@metamask/snaps-simulation@2.7.0", "", { "dependencies": { "@metamask/base-controller": "^8.0.1", "@metamask/eth-json-rpc-middleware": "^17.0.0", "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.7", "@metamask/key-tree": "^10.1.1", "@metamask/permission-controller": "^11.0.6", "@metamask/phishing-controller": "^12.5.0", "@metamask/snaps-controllers": "^12.3.0", "@metamask/snaps-execution-environments": "^8.1.0", "@metamask/snaps-rpc-methods": "^12.4.0", "@metamask/snaps-sdk": "^7.1.0", "@metamask/snaps-utils": "^9.4.0", "@metamask/superstruct": "^3.2.1", "@metamask/utils": "^11.4.0", "@reduxjs/toolkit": "^1.9.5", "fast-deep-equal": "^3.1.3", "mime": "^3.0.0", "readable-stream": "^3.6.2", "redux-saga": "^1.2.3" } }, "sha512-thFtvEayY6wewPvoHkppenk6Si90LtzPFZUlk4nuCWpdDMGRRF6Zv6RPxn4iCs7uRTQLuuruAbCc8/jgW2nWKQ=="],
 
@@ -1870,6 +1870,8 @@
 
     "@metamask/snaps-controllers/@metamask/snaps-sdk": ["@metamask/snaps-sdk@7.1.0", "", { "dependencies": { "@metamask/key-tree": "^10.1.1", "@metamask/providers": "^22.1.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/superstruct": "^3.2.1", "@metamask/utils": "^11.4.0" } }, "sha512-b0vxRfkRZ1fG04kLYLjOw1yVejFhw+lSomFEEvYcKIYnHPlAH/r9mzPmqoqkcyydPrxxbnIqsFgJdH1ymhSarg=="],
 
+    "@metamask/snaps-execution-environments/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
+
     "@metamask/snaps-execution-environments/@metamask/snaps-sdk": ["@metamask/snaps-sdk@7.1.0", "", { "dependencies": { "@metamask/key-tree": "^10.1.1", "@metamask/providers": "^22.1.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/superstruct": "^3.2.1", "@metamask/utils": "^11.4.0" } }, "sha512-b0vxRfkRZ1fG04kLYLjOw1yVejFhw+lSomFEEvYcKIYnHPlAH/r9mzPmqoqkcyydPrxxbnIqsFgJdH1ymhSarg=="],
 
     "@metamask/snaps-jest/@metamask/snaps-sdk": ["@metamask/snaps-sdk@7.1.0", "", { "dependencies": { "@metamask/key-tree": "^10.1.1", "@metamask/providers": "^22.1.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/superstruct": "^3.2.1", "@metamask/utils": "^11.4.0" } }, "sha512-b0vxRfkRZ1fG04kLYLjOw1yVejFhw+lSomFEEvYcKIYnHPlAH/r9mzPmqoqkcyydPrxxbnIqsFgJdH1ymhSarg=="],
@@ -2076,15 +2078,29 @@
 
     "@metamask/snaps-cli/@metamask/snaps-sdk/@metamask/key-tree": ["@metamask/key-tree@10.1.1", "", { "dependencies": { "@metamask/scure-bip39": "^2.1.1", "@metamask/utils": "^11.0.1", "@noble/curves": "^1.8.1", "@noble/hashes": "^1.3.2", "@scure/base": "^1.0.0" } }, "sha512-k9/MljlUqXC86hAOp6QGUwNm9ODWuA/YkMxiEwXcChNJgQSYfPzDh+Hp6Agf3g2mLKagMbl2nkH0+4vas+Pnyw=="],
 
+    "@metamask/snaps-cli/@metamask/snaps-sdk/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
+
     "@metamask/snaps-cli/yargs/cliui": ["cliui@8.0.1", "", { "dependencies": { "string-width": "^4.2.0", "strip-ansi": "^6.0.1", "wrap-ansi": "^7.0.0" } }, "sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ=="],
 
     "@metamask/snaps-cli/yargs/yargs-parser": ["yargs-parser@21.1.1", "", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
+
+    "@metamask/snaps-controllers/@metamask/snaps-sdk/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
 
     "@metamask/snaps-execution-environments/@metamask/snaps-sdk/@metamask/key-tree": ["@metamask/key-tree@10.1.1", "", { "dependencies": { "@metamask/scure-bip39": "^2.1.1", "@metamask/utils": "^11.0.1", "@noble/curves": "^1.8.1", "@noble/hashes": "^1.3.2", "@scure/base": "^1.0.0" } }, "sha512-k9/MljlUqXC86hAOp6QGUwNm9ODWuA/YkMxiEwXcChNJgQSYfPzDh+Hp6Agf3g2mLKagMbl2nkH0+4vas+Pnyw=="],
 
     "@metamask/snaps-jest/@metamask/snaps-sdk/@metamask/key-tree": ["@metamask/key-tree@10.1.1", "", { "dependencies": { "@metamask/scure-bip39": "^2.1.1", "@metamask/utils": "^11.0.1", "@noble/curves": "^1.8.1", "@noble/hashes": "^1.3.2", "@scure/base": "^1.0.0" } }, "sha512-k9/MljlUqXC86hAOp6QGUwNm9ODWuA/YkMxiEwXcChNJgQSYfPzDh+Hp6Agf3g2mLKagMbl2nkH0+4vas+Pnyw=="],
 
+    "@metamask/snaps-jest/@metamask/snaps-sdk/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
+
+    "@metamask/snaps-rpc-methods/@metamask/snaps-sdk/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
+
+    "@metamask/snaps-simulation/@metamask/snaps-sdk/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
+
+    "@metamask/snaps-utils/@metamask/snaps-sdk/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
+
     "@metamask/snaps-webpack-plugin/@metamask/snaps-sdk/@metamask/key-tree": ["@metamask/key-tree@10.1.1", "", { "dependencies": { "@metamask/scure-bip39": "^2.1.1", "@metamask/utils": "^11.0.1", "@noble/curves": "^1.8.1", "@noble/hashes": "^1.3.2", "@scure/base": "^1.0.0" } }, "sha512-k9/MljlUqXC86hAOp6QGUwNm9ODWuA/YkMxiEwXcChNJgQSYfPzDh+Hp6Agf3g2mLKagMbl2nkH0+4vas+Pnyw=="],
+
+    "@metamask/snaps-webpack-plugin/@metamask/snaps-sdk/@metamask/providers": ["@metamask/providers@22.1.0", "", { "dependencies": { "@metamask/json-rpc-engine": "^10.0.2", "@metamask/json-rpc-middleware-stream": "^8.0.6", "@metamask/object-multiplex": "^2.0.0", "@metamask/rpc-errors": "^7.0.2", "@metamask/safe-event-emitter": "^3.1.1", "@metamask/utils": "^11.0.1", "detect-browser": "^5.2.0", "extension-port-stream": "^4.1.0", "fast-deep-equal": "^3.1.3", "is-stream": "^2.0.0", "readable-stream": "^3.6.2" }, "peerDependencies": { "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0" } }, "sha512-lu639mkH78GLSLVUGW+XI6viHI5NAOwoJe+B9OmQm/rVmLuvy2ZSQVrsrT3n00Pt1WLeq1J6Ee/gML3RxVc4Aw=="],
 
     "@npmcli/move-file/rimraf/glob": ["glob@7.2.3", "", { "dependencies": { "fs.realpath": "^1.0.0", "inflight": "^1.0.4", "inherits": "2", "minimatch": "^3.1.1", "once": "^1.3.0", "path-is-absolute": "^1.0.0" } }, "sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q=="],
 
