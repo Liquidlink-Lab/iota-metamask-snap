@@ -32,6 +32,8 @@ The Snap requests permissions necessary to access account addresses, sign transa
 
 Yes. The IOTA Snap has undergone a full security audit by Sayfer. All identified issues have been resolved, and the final audit report is available upon request.
 
+Audit Link : https://sayfer.io/audits/metamask-snap-audit-report-for-liquidlink/
+
 ## 9. When will the Snap be available to the public?
 
 The Snap has been submitted for MetaMask allowlist approval. Once approved, we will publish official installation instructions and announce the release publicly.
@@ -39,3 +41,10 @@ The Snap has been submitted for MetaMask allowlist approval. Once approved, we w
 ## 10. Where can I report issues or get support?
 
 You can report issues via our GitHub repository or contact our support team through the official communication channels listed in the documentation.
+
+### More information 
+
+- dev doc : https://doc.liquidlink.io/docs/iota-snap
+- contact gmail : liquidlink.io@gmail.com
+- github expmale : https://github.com/Liquidlink-Lab/iota-snap-package-main
+
