@@ -1,8 +1,5 @@
 import { SLIP10Node } from '@metamask/key-tree';
 import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
-import { messageWithIntent, toSerializedSignature } from '@iota/iota-sdk/cryptography';
-import { blake2b } from '@noble/hashes/blake2b';
-import { toB64 } from '@iota/iota-sdk/utils';
 import { IotaClient } from '@iota/iota-sdk/client';
 
 async function getKeypair() {
@@ -18,13 +15,7 @@ async function getKeypair() {
 
 export async function signPersonalMessage(message: Uint8Array) {
   const keypair = await getKeypair();
-  const data = messageWithIntent('PersonalMessage', message);
-  const pubkey = keypair.getPublicKey();
-  const digest = blake2b(data, { dkLen: 32 });
-  const signature = await keypair.sign(digest);
-  const signatureScheme = keypair.getKeyScheme();
-  const serializedSignature = toSerializedSignature({ signatureScheme, signature, publicKey: pubkey });
-  return { bytes: toB64(message), signature: serializedSignature };
+  return await keypair.signPersonalMessage(message);
 }
 
 export async function signTxBlock(transactionBlockBytes: Uint8Array) {
